@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Analyzer - Welcome</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #f0f4f8, #7f98b8);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      text-align: center;
+      background-color: whitesmoke;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #1a202c;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #2b416c;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s, background-color 0.3s;
+    }
+    .btn:hover {
+      transform: scale(1.05);
+    }
+    .btn-ai {
+      background-color: #4f46e5;
+      color: white;
+    }
+    .btn-create {
+      background-color: #10b981;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to CV Analyzer</h1>
+    <p>Your personal AI assistant for improving and creating resumes.</p>
+    <div class="button-group">
+      <button class="btn btn-ai" onclick="location.href='upload'">Ask AI Opinion</button>
+      <button class="btn btn-create" onclick="location.href='create'">Create New CV</button>
+    </div>
+  </div>
+</body>
+</html>

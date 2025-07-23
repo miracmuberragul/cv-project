@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>AI-powered CV Analyzer </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #dbeafe;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            padding: 3rem; /* Üst ve alt paddingi artırdık */
+        }
+
+        .container {
+            max-width: 1500px; /* Geniş ekranlar için daha geniş bir maksimum genişlik */
+            margin: auto; /* Ortalamak için */
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 2rem; /* Başlık ile altındaki içerik arasına boşluk */
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* İki eşit sütun */
+            gap: 30px; /* Ana sütunlar arası boşluk */
+        }
+
+        .grid-column {
+            /* Ortak sütun stilleri */
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.07);
+            display: flex; /* İçeriğin dikeyde yerleşimi için flexbox kullanıyoruz */
+            flex-direction: column;
+        }
+
+        /* .card-custom sınıfı artık ana sütunlar için kullanılmadığı için kaldırıldı/birleştirildi */
+        /* Eğer başka yerlerde kullanıyorsanız tutabilirsiniz, ancak bu bağlamda gereksiz */
+
+        h4 {
+            color: #2c3e50;
+            text-align: center; /* Analiz sonucu başlığını ortala */
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-primary {
+            background-color: #274877;
+            border-color: #274877;
+            font-weight: 600;
+            padding: 10px 25px;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e3a61;
+            border-color: #1e3a61;
+        }
+
+        /* Analiz sonucu için iki sütunlu grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr ; /* İki eşit sütun */
+            gap: 20px; /* Sütunlar arası boşluk */
+            margin-top: 15px; /* Üstteki başlığa göre boşluk */
+        }
+
+        .analysis-column {
+            background-color: #eef2f9;
+            padding: 1.2em;
+            border-radius: 8px;
+            border: 1px solid #dbe3f3;
+            min-height: 200px; /* Her sütun için minimum yükseklik */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .analysis-column h5 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .analysis-column ul {
+            list-style: disc;
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+
+        .analysis-column ul li {
+            margin-bottom: 5px;
+        }
+
+        /* PDF Önizleme Iframe'i için yeni stil */
+        #pdf-preview {
+            display: none;
+            width: 100%;
+            height: 500px; /* Yüksekliği artırdık */
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-top: 20px;
+            flex-grow: 1; /* Mevcut alanı doldurmasını sağlar */
+        }
+
+        #loading-spinner {
+            display: none; /* Başlangıçta gizli */
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        #result-section {
+            /* Bu stil artık burada doğrudan bir 'grid-column' olacağı için margin-top'a gerek kalmaz
+               ancak başlangıçta 'display: none;' olarak kalmalı */
+            display: none; /* JavaScript ile görünür yapılacak */
+        }
+
+        /* Genel değerlendirme div'i için stil */
+        #general-assessment-div {
+            margin-top: 20px; /* Diğer sütunlara göre boşluk */
+        }
+
+
+        /* Chatbot stilleri aynı kaldı */
+        #chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #chat-toggle button {
+            background-color: #274877;
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        #chat-toggle button:hover {
+            transform: scale(1.1);
+        }
+
+        #chatbox {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 370px;
+            max-height: 550px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            flex-direction: column; /* Sayfa yüklendiğinde varsayılanı flex olarak tutmak için */
+        }
+
+        .chat-header {
+            background-color: #274877;
+            color: white;
+            padding: 12px 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            font-weight: bold;
+        }
+
+        #chat-messages {
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+            height: 350px;
+        }
+
+        .chat-footer {
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        #chat-input {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 8px;
+            resize: none;
+        }
+
+        #chat-send-button {
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #dbeafe;
+            color: #1e3a8a;
+            padding: 10px 14px;
+            border-radius: 15px 15px 0 15px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background: #f1f0f0;
+            color: #333;
+            padding: 10px 14px;
+            border-radius: 15px 15px 15px 0;
+            align-self: flex-start;
+        }
+
+        .loading-message, .error-message {
+            background: #f1f0f0;
+            padding: 10px 14px;
+            border-radius: 15px 15px 15px 0;
+            align-self: flex-start;
+            font-style: italic;
+            color: #666;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="container">
+
+    <h2>🔎 AI-powered CV Analyzer</h2>
+
+    <div class="main-grid">
+
+        <div class="grid-column">
+            <form id="upload-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="pdf_file" class="form-label"><strong>Select PDF CV</strong></label>
+                    <input type="file" name="pdf_file" id="pdf_file" class="form-control" accept=".pdf" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Analyze</button>
+            </form>
+
+            <div id="loading-spinner" class="d-none">
+                <div class="spinner-border text-primary" role="status"></div>
+                <span class="ms-2">Loading...</span>
+            </div>
+
+            <iframe id="pdf-preview"></iframe>
+        </div>
+
+        <div id="result-section" class="grid-column">
+            <h4>🔎 Analysis Result:</h4>
+            <div id="analysis-grid" class="analysis-grid">
+                <div id="good-points-column" class="analysis-column">
+                    <h5>Strengths:</h5>
+                    <ul></ul>
+                </div>
+                <div id="weaknesses-column" class="analysis-column">
+                    <h5>Weaknesses:</h5>
+                    <ul></ul>
+                </div>
+            </div>
+            <div id="general-assessment-div" class="analysis-column mt-3">
+                <h5>General Assessment:</h5>
+                <p></p>
+            </div>
+        </div>
+
+    </div> <div id="chat-toggle">
+        <button>💬</button>
+    </div>
+
+    <div id="chatbox">
+        <div class="chat-header">CV Chatbot Asistant</div>
+        <div id="chat-messages"></div>
+        <div class="chat-footer">
+            <form id="chat-form">
+                <textarea id="chat-input" rows="2" placeholder="Ask a question..." required></textarea>
+                <button type="submit" id="chat-send-button" class="btn btn-primary btn-sm">Send</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const pdfInput = document.getElementById("pdf_file");
+        const preview = document.getElementById("pdf-preview");
+        const spinner = document.getElementById("loading-spinner");
+        const resultSection = document.getElementById("result-section");
+
+        // Yeni DOM öğelerine referanslar
+        const goodPointsColumn = document.getElementById("good-points-column").querySelector('ul');
+        const weaknessesColumn = document.getElementById("weaknesses-column").querySelector('ul');
+        const generalAssessmentDiv = document.getElementById("general-assessment-div").querySelector('p');
+
+        pdfInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file && file.type === "application/pdf") {
+                const fileURL = URL.createObjectURL(file);
+                preview.src = fileURL;
+                preview.style.display = "block";
+            } else {
+                preview.style.display = "none";
+                preview.src = "";
+            }
+        });
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const file = pdfInput.files[0];
+            if (!file) {
+                console.log("DEBUG: Dosya seçilmedi.");
+                return;
+            }
+
+            console.log("DEBUG: Yükleme işlemi başlıyor. Spinner gösteriliyor.");
+            spinner.style.display = "flex";
+            resultSection.style.display = "none";
+
+            // Yeni analizi göstermeden önce eski içerikleri temizle
+            goodPointsColumn.innerHTML = '';
+            weaknessesColumn.innerHTML = '';
+            generalAssessmentDiv.innerHTML = '';
+            document.getElementById('general-assessment-div').style.display = 'none'; // Başlangıçta gizli tut
+
+            const formData = new FormData();
+            formData.append("pdf_file", file);
+
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            console.log("DEBUG: CSRF Token:", csrftoken);
+
+            try {
+                console.log("DEBUG: Fetch isteği gönderiliyor...");
+                const response = await fetch("{% url 'upload_and_analyze' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrftoken
+                    },
+                    body: formData
+                });
+
+                console.log("DEBUG: Fetch yanıtı alındı. Status:", response.status);
+
+                if (!response.ok) {
+                    const errorData = await response.json(); // Hata JSON'ını yakala
+                    throw new Error(`Sunucu hatası: ${response.status} - ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log("DEBUG: Yanıt JSON olarak çözümlendi:", data);
+
+                // Backend'den gelen JSON verisini işle
+                if (data.good_points || data.weaknesses || data.general_assessment || data.error) {
+                    if (data.error) {
+                         // Eğer backend'den bir hata mesajı JSON içinde döndüyse
+                        generalAssessmentDiv.innerHTML = `<div class="alert alert-danger mt-3">Analiz hatası: ${data.error}</div>`;
+                        document.getElementById('general-assessment-div').style.display = 'block';
+                    } else {
+                        // İyi yönleri ekle
+                        if (data.good_points && data.good_points.length > 0) {
+                            data.good_points.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = item;
+                                goodPointsColumn.appendChild(li);
+                            });
+                        } else {
+                            const li = document.createElement('li');
+                            li.textContent = "Belirgin iyi yönler tespit edilmedi.";
+                            goodPointsColumn.appendChild(li);
+                        }
+
+                        // Eksikleri ekle
+                        if (data.weaknesses && data.weaknesses.length > 0) {
+                            data.weaknesses.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = item;
+                                weaknessesColumn.appendChild(li);
+                            });
+                        } else {
+                            const li = document.createElement('li');
+                            li.textContent = "Belirgin eksiklikler tespit edilmedi.";
+                            weaknessesColumn.appendChild(li);
+                        }
+
+                        // Genel değerlendirmeyi ekle
+                        if (data.general_assessment) {
+                            generalAssessmentDiv.textContent = data.general_assessment;
+                            document.getElementById('general-assessment-div').style.display = 'block';
+                        } else {
+                            document.getElementById('general-assessment-div').style.display = 'none';
+                        }
+                    }
+                    resultSection.style.display = "block";
+                    console.log("DEBUG: Analiz sonucu gösterildi.");
+
+                } else if (data.message) {
+                    // Eğer analiz verisi yerine sadece bir mesaj döndüyse
+                    generalAssessmentDiv.innerHTML = `<div class="alert alert-warning mt-3">${data.message}</div>`;
+                    document.getElementById('general-assessment-div').style.display = 'block';
+                    resultSection.style.display = "block";
+                    console.log("DEBUG: Mesaj sonucu gösterildi.");
+                } else {
+                    // Herhangi bir özel veri veya mesaj gelmediyse
+                    generalAssessmentDiv.innerHTML = `<div class="alert alert-warning mt-3">Analiz tamamlandı ancak beklenen formatta sonuç bulunamadı.</div>`;
+                    document.getElementById('general-assessment-div').style.display = 'block';
+                    resultSection.style.display = "block";
+                    console.log("DEBUG: Boş/Tanımsız sonuç gösterildi.");
+                }
+
+            } catch (error) {
+                console.error("CRITICAL ERROR: Yükleme ve Analiz Hatası:", error);
+                generalAssessmentDiv.innerHTML = `<div class="alert alert-danger mt-3">Hata oluştu: ${error.message}. Lütfen sunucu loglarını ve tarayıcı konsolunu kontrol edin.</div>`;
+                document.getElementById('general-assessment-div').style.display = 'block';
+                resultSection.style.display = "block";
+            } finally {
+                console.log("DEBUG: Finally bloğu çalışıyor. Spinner gizleniyor.");
+                spinner.style.display = "none";
+            }
+        });
+
+        // CSRF ve Chatbot fonksiyonları değişmedi
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function toggleChat() {
+            const box = document.getElementById("chatbox");
+            box.style.display = box.style.display === "none" || box.style.display === "" ? "flex" : "none";
+        }
+
+        async function sendChat() {
+            const input = document.getElementById("chat-input");
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById("chat-messages");
+            appendMessage(message, 'user');
+            input.value = "";
+
+            const loadingElement = appendMessage('...', 'loading');
+
+            try {
+                const response = await fetch("/api/chatbot/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ question: message })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json(); // Hata JSON'ını yakalamaya çalış
+                    throw new Error(`Sunucu hatası: ${response.status} - ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+                loadingElement.remove();
+                appendMessage(data.answer || "Anlaşılır bir cevap alınamadı.", 'bot');
+            } catch (error) {
+                console.error("Chat Hatası:", error);
+                loadingElement.remove();
+                appendMessage(`Üzgünüm, bir hata oluştu: ${error.message}. Lütfen daha sonra tekrar deneyin.`, 'error');
+            }
+        }
+
+        function appendMessage(text, type) {
+            const chatMessages = document.getElementById("chat-messages");
+            const messageWrapper = document.createElement("div");
+            messageWrapper.classList.add('chat-message');
+
+            const messageBubble = document.createElement("div");
+            messageBubble.textContent = text;
+
+            if (type === 'user') {
+                messageBubble.classList.add('user-message');
+            } else if (type === 'bot') {
+                messageBubble.classList.add('bot-message');
+            } else if (type === 'loading') {
+                messageBubble.classList.add('loading-message');
+            } else if (type === 'error') {
+                messageBubble.classList.add('error-message');
+            }
+
+            messageWrapper.appendChild(messageBubble);
+            chatMessages.appendChild(messageWrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            return messageWrapper;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('chat-toggle').addEventListener('click', toggleChat);
+            document.getElementById('chat-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                sendChat();
+            });
+        });
+    </script>
+</body>
+</html>

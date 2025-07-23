@@ -1,0 +1,229 @@
+ <!-- templates/analyzer/create.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>CV Oluşturucu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #dbeafe; font-family: 'Segoe UI', sans-serif; }
+        .editor-container {
+            display: grid;
+            grid-template-columns: 45% 55%; /* Sol form, sağ önizleme */
+            gap: 2rem;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .form-column { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow-y: auto; }
+        .preview-column { background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 14px; line-height: 1.6; }
+        .form-section { margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
+        .form-section h4 { color: #274877; }
+        #cv-preview h3 { color: #2c3e50; text-align: center; }
+        #cv-preview .section-title { font-weight: bold; color: #274877; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="editor-container">
+        <!-- SOL SÜTUN: DÜZENLEME FORMLARI -->
+        <div class="form-column">
+            <h3>CV'ni Düzenle</h3>
+            <div class="my-3">
+                <label for="import-pdf" class="form-label"><strong>Veya PDF'ten İçeri Aktar:</strong></label>
+                <input type="file" id="import-pdf" class="form-control" accept=".pdf">
+            </div>
+            <hr>
+
+            <!-- Kişisel Bilgiler Formu -->
+            <div id="personal-info-form" class="form-section">
+                <h4>Kişisel Bilgiler</h4>
+                <input type="text" id="fullName" class="form-control mb-2" placeholder="Ad Soyad">
+                <input type="email" id="email" class="form-control mb-2" placeholder="E-posta">
+                <input type="tel" id="phone" class="form-control mb-2" placeholder="Telefon">
+                <input type="text" id="address" class="form-control" placeholder="Adres">
+            </div>
+
+            <!-- Özet Formu -->
+            <div id="summary-form" class="form-section">
+                <h4>Özet</h4>
+                <textarea id="summary" class="form-control" rows="5" placeholder="Profesyonel özetiniz..."></textarea>
+            </div>
+
+            <!-- İş Deneyimi Formu -->
+            <div id="experience-form" class="form-section">
+                <h4>İş Deneyimi</h4>
+                <div id="experience-entries"></div>
+                <button id="add-experience" class="btn btn-secondary btn-sm mt-2">Deneyim Ekle</button>
+            </div>
+
+
+
+            <!-- Diğer bölümleri (Eğitim, Yetenekler) de benzer şekilde ekleyebilirsiniz -->
+
+        </div>
+
+        <!-- SAĞ SÜTUN: CANLI ÖNİZLEME -->
+        <div class="preview-column">
+            <div id="cv-preview">
+                <h3 id="preview-fullName">Adınız Soyadınız</h3>
+                <p id="preview-contact" class="text-center small text-muted"></p>
+
+                <p class="section-title">Özet</p>
+                <p id="preview-summary">Profesyonel özetiniz burada görünecek.</p>
+
+                <p class="section-title">İş Deneyimi</p>
+                <div id="preview-experience"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+       // create.html içindeki <script> etiketinin içi
+
+        // 1. TEMEL DEĞİŞKENLER VE CV VERİ YAPISI
+        let cvData = {
+            personalInfo: { fullName: '', email: '', phone: '', address: '' },
+            summary: '',
+            workExperience: [],
+            education: [],
+            skills: []
+        };
+
+        const formElements = {
+            fullName: document.getElementById('fullName'),
+            email: document.getElementById('email'),
+            phone: document.getElementById('phone'),
+            address: document.getElementById('address'),
+            summary: document.getElementById('summary'),
+            experienceEntries: document.getElementById('experience-entries'),
+            addExperienceBtn: document.getElementById('add-experience'),
+        };
+
+        const previewElements = {
+            fullName: document.getElementById('preview-fullName'),
+            contact: document.getElementById('preview-contact'),
+            summary: document.getElementById('preview-summary'),
+            experience: document.getElementById('preview-experience'),
+
+        };
+
+
+        // 2. RENDER FONKSİYONLARI (Veriyi HTML'e dönüştürür)
+
+        function renderAll() {
+            renderPersonalInfo();
+            renderSummary();
+            renderExperience();
+        }
+
+        function renderPersonalInfo() {
+            // Formu doldur
+            formElements.fullName.value = cvData.personalInfo.fullName;
+            formElements.email.value = cvData.personalInfo.email;
+            formElements.phone.value = cvData.personalInfo.phone;
+            formElements.address.value = cvData.personalInfo.address;
+
+            // Önizlemeyi güncelle
+            previewElements.fullName.textContent = cvData.personalInfo.fullName || 'Adınız Soyadınız';
+            previewElements.contact.textContent = `${cvData.personalInfo.email} | ${cvData.personalInfo.phone} | ${cvData.personalInfo.address}`;
+        }
+
+        function renderSummary() {
+            formElements.summary.value = cvData.summary;
+            previewElements.summary.textContent = cvData.summary || 'Profesyonel özetiniz burada görünecek.';
+        }
+
+        function renderExperience() {
+            // Formları ve önizlemeyi temizle
+            formElements.experienceEntries.innerHTML = '';
+            previewElements.experience.innerHTML = '';
+
+            cvData.workExperience.forEach((exp, index) => {
+
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'card card-body mb-2';
+                entryDiv.innerHTML = `
+                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="jobTitle" value="${exp.jobTitle}" placeholder="Ünvan">
+                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="company" value="${exp.company}" placeholder="Şirket">
+                    <textarea class="form-control" data-index="${index}" data-field="description" rows="3" placeholder="Açıklama...">${exp.description}</textarea>
+                `;
+                formElements.experienceEntries.appendChild(entryDiv);
+
+                // Önizleme alanını oluştur
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'mb-3';
+                previewDiv.innerHTML = `
+                    <strong>${exp.jobTitle || 'Ünvan'}</strong>, <span>${exp.company || 'Şirket'}</span>
+                    <p style="white-space: pre-wrap;">${exp.description || ''}</p>
+                `;
+                previewElements.experience.appendChild(previewDiv);
+            });
+        }
+
+
+        // 3. EVENT LISTENERS (Kullanıcı etkileşimlerini yakalar)
+
+        // Form alanlarındaki genel değişiklikler
+        document.getElementById('personal-info-form').addEventListener('input', (e) => {
+            cvData.personalInfo[e.target.id] = e.target.value;
+            renderPersonalInfo();
+        });
+
+        formElements.summary.addEventListener('input', () => {
+            cvData.summary = formElements.summary.value;
+            renderSummary();
+        });
+
+        // İş deneyimi gibi dinamik alanlar için
+        formElements.experienceEntries.addEventListener('input', (e) => {
+            const index = e.target.dataset.index;
+            const field = e.target.dataset.field;
+            if (index !== undefined && field) {
+                cvData.workExperience[index][field] = e.target.value;
+                renderExperience(); // Tüm deneyim bölümünü yeniden çiz
+            }
+        });
+
+        formElements.addExperienceBtn.addEventListener('click', () => {
+            cvData.workExperience.push({ jobTitle: '', company: '', description: '' });
+            renderExperience();
+        });
+
+
+        // 4. PDF İÇERİ AKTARMA
+
+        const importPdfInput = document.getElementById('import-pdf');
+        importPdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            alert('PDF ayrıştırılıyor, bu işlem biraz sürebilir...');
+            const formData = new FormData();
+            formData.append('pdf_file', file);
+
+            try {
+                const response = await fetch("{% url 'parse_pdf_for_edit' %}", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Bilinmeyen bir hata oluştu.');
+                }
+
+                const data = await response.json();
+                cvData = data; // Gelen JSON verisi ile ana veri yapımızı güncelle
+                renderAll(); // Tüm arayüzü yeni veri ile yeniden çiz
+                alert('PDF başarıyla içeri aktarıldı!');
+
+            } catch (error) {
+                alert(`Hata: ${error.message}`);
+            }
+        });
+
+        // Sayfa yüklendiğinde ilk render'ı yap
+        renderAll();
+    </script>
+</body>
+</html>
