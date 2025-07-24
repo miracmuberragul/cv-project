@@ -311,8 +311,22 @@ def extract_cv_data_with_gemini(cv_text: str) -> dict:
           "graduationDate": ""
         }}
       ],
-      "skills": []
+      "skills": [],
+      "languages": [
+        {{
+          "name": "Konuşulan dilin adı (örn: İngilizce)",
+          "level": "Dilin seviyesi (örn: C1 - İleri Seviye)"
+        }}
+      ],
+      
+      "certificates": [
+        {{
+          "name": "Sertifikanın tam adı",
+          "issuer": "Sertifikayı veren kurum"
+        }}
+      ],
     }}
+          // Örn: ["Google Data Analytics Professional Certificate", "Certified ScrumMaster (CSM)"]
 
     CV Metni:
     ---
@@ -371,3 +385,6 @@ def generate_summary_text(name: str = "", skills: str = "", education: str = "",
         print(f"DEBUG: Gemini API çağrısı sırasında hata: {e}") # Sunucu konsoluna yazdır
         # API anahtarının geçersiz olması veya kota aşımı gibi durumlar burada yakalanır.
         return f"Gemini özgeçmiş özeti oluşturma hatası: {str(e)}"
+
+
+

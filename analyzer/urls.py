@@ -2,7 +2,6 @@ from django.urls import path
 
 from . import views
 from .views import upload_and_analyze
-from .forms import PersonalInfoForm, EducationForm, ExperienceForm
 
 urlpatterns = [
     path('upload/', upload_and_analyze, name='upload_and_analyze'),
@@ -15,6 +14,7 @@ urlpatterns = [
 
 
     path('create/generate-summary/', views.generate_summary, name='generate-summary'),
+
 
 
 

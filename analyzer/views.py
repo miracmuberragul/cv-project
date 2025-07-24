@@ -27,7 +27,10 @@ def parse_pdf_for_edit(request):
 
         # Gemini'den yapılandırılmış dict verisini al
         cv_data = extract_cv_data_with_gemini(full_text)
+        analysis_text = analyze_cv_with_gemini(full_text)
 
+        request.session['cv_text'] = full_text
+        request.session['analysis_text'] = analysis_text
         # Fonksiyonun bir hata döndürüp döndürmediğini kontrol et
         if "error" in cv_data:
             # Eğer hata varsa, hatayı frontend'e bildir ve 500 koduyla cevap ver
@@ -87,7 +90,6 @@ def upload_and_analyze(request):
                 pdf_file=pdf_file,
                 analysis_result=json.dumps(analysis_data, ensure_ascii=False)  # Store as JSON string
             )
-
             # 3. Save necessary info to the session for the chatbot
             request.session['cv_text'] = full_text
             request.session['analysis_text'] = analysis_text  # Save the original raw text for context
@@ -111,27 +113,27 @@ def chatbot(request):
     # 'import json' üstte zaten var, tekrar etmeye gerek yok
 
     if request.method == "POST":
+        data = json.loads(request.body)
         cv_text = request.session.get("cv_text", "") # Varsayılan değer ekledik
-        analysis_text = request.session.get("analysis_text", "") # Varsayılan değer ekledik
-
+        analysis_text = request.session.get("analysis_text", "") # Varsayılan değer ekledi
         if not cv_text.strip(): # Metin tamamen boşluklardan oluşuyorsa da kabul etmez
             return JsonResponse({
                 "answer": "Lütfen önce bir CV yükleyip analiz edin. Sohbet edebilmem için bir CV'ye ihtiyacım var."
-            }, status=400) # 400 Bad Request, çünkü istemci bir ön koşulu sağlamadı
+            }, status=403) # 400 Bad Request, çünkü istemci bir ön koşulu sağlamadı
 
         try:
             data = json.loads(request.body)
             question = data.get("question", "").strip() # .strip() ile boşlukları temizle
 
             if not question:
-                return JsonResponse({"error": "Soru boş olamaz."}, status=400)
+                return JsonResponse({"error": "Soru boş olamaz."}, status=401)
 
             # Gemini fonksiyonunu çağırıyoruz
             answer = chatbot_answer_with_gemini(question, cv_text, analysis_text)
             return JsonResponse({"answer": answer})
 
         except json.JSONDecodeError:
-            return JsonResponse({"error": "Geçersiz JSON formatı."}, status=400)
+            return JsonResponse({"error": "Geçersiz JSON formatı."}, status=402)
         except Exception as e:
             # Detaylı hata mesajı loglama
             print(f"Chatbot servisinde beklenmedik hata: {e}")
@@ -191,3 +193,5 @@ def generate_summary(request):
             return JsonResponse({'error': str(e)}, status=400)
 
     return JsonResponse({'error': 'Sadece POST isteklerine izin verilir.'}, status=405)
+
+

@@ -1,4 +1,3 @@
- <!-- templates/analyzer/create.html -->
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -7,32 +6,168 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        body { background-color: #dbeafe; font-family: 'Segoe UI', sans-serif; }
+        body {
+            background-color: #dbeafe;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
         .editor-container {
             display: grid;
-            grid-template-columns: 45% 55%; /* Sol form, sağ önizleme */
+            grid-template-columns: 45% 55%;
             gap: 2rem;
             min-height: 100vh;
             padding: 2rem;
         }
-        .form-column { background: #fff; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); overflow-y: auto; }
-        .preview-column { background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 14px; line-height: 1.6; }
-        .form-section { margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
-        .form-section h4 { color: #274877; }
-        #cv-preview {
-          display: block;
-          padding: 20px;
-          margin: 0 auto;
-          text-align: left;
-          background-color: white;
-          width: 100%;
-          color: black;
-          box-sizing: border-box;
-            overflow: visible;
+
+        .form-column, .preview-column {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-y: auto;
+            max-height: 95vh;
         }
 
-        #cv-preview h3 { color: #2c3e50; text-align: center; }
-        #cv-preview .section-title { font-weight: bold; color: #274877; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; }
+        .form-section {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 1.5rem;
+        }
+
+        .form-section h4 {
+            color: #274877;
+        }
+
+        /* Şablon Seçici Stilleri */
+        .template-selector {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .template-btn {
+            margin-right: 0.5rem;
+        }
+
+        .template-btn.active {
+            background-color: #274877;
+            color: white;
+            border-color: #274877;
+        }
+
+        /* Genel CV Önizleme */
+        #cv-preview {
+            display: block;
+            margin: 0 auto;
+            text-align: left;
+            background-color: white;
+            width: 100%;
+            color: black;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ŞABLON 1: KLASİK STİLLER */
+        #cv-preview .classic-title {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        #cv-preview .classic-contact {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 1.5rem;
+        }
+
+        #cv-preview .classic-section-title {
+            font-weight: bold;
+            color: #274877;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 5px;
+            margin-top: 20px;
+        }
+
+        /* ŞABLON 2: MODERN STİLLER */
+        #cv-preview .modern-container {
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            gap: 1.5rem;
+        }
+
+        #cv-preview .modern-left-col {
+            padding-right: 1.5rem;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        #cv-preview .modern-title {
+            color: #1e3a8a;
+            margin-bottom: 0.25rem;
+            font-size: 1.8em;
+        }
+
+        #cv-preview .modern-contact-item {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            word-wrap: break-word;
+        }
+
+        #cv-preview .modern-section-title {
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* YENİ - ŞABLON 3: CANLI STİLLER */
+        #cv-preview .vibrant-container {
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        #cv-preview .vibrant-header {
+            text-align: center;
+            border-bottom: 3px solid #0d9488;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        #cv-preview .vibrant-title {
+            color: #115e59;
+            font-size: 2.2em;
+            margin: 0;
+        }
+
+        #cv-preview .vibrant-contact {
+            color: #4b5563;
+            margin-top: 0.5rem;
+        }
+
+        #cv-preview .vibrant-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        #cv-preview .vibrant-section-title {
+            color: #0d9488;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        #cv-preview .vibrant-section-title svg {
+            margin-right: 8px;
+        }
+
+        #cv-preview .vibrant-list-item {
+            margin-bottom: 0.25rem;
+        }
+
         /* Chatbot stilleri aynı kaldı */
         #chat-toggle {
             position: fixed;
@@ -49,7 +184,7 @@
             height: 60px;
             border-radius: 50%;
             font-size: 24px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s ease;
         }
 
@@ -66,9 +201,9 @@
             max-height: 550px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
             z-index: 1000;
-            flex-direction: column; /* Sayfa yüklendiğinde varsayılanı flex olarak tutmak için */
+            flex-direction: column;
         }
 
         .chat-header {
@@ -105,12 +240,6 @@
             width: 100%;
         }
 
-        .chat-message {
-            margin-bottom: 10px;
-            max-width: 85%;
-            word-wrap: break-word;
-        }
-
         .user-message {
             background: #dbeafe;
             color: #1e3a8a;
@@ -141,537 +270,567 @@
             background: #fee2e2;
             color: #991b1b;
         }
-        #generate-summary{
+
+        #generate-summary, #add-experience, #add-education, #add-certificate, #add-language, #download-cv {
             background-color: #1e3a8a;
-        }
-        #add-experience{
-            background-color: #1e3a8a;
-        }
-        #add-education{
-            background-color: #1e3a8a;
-        }
-        #download-cv{
-            background-color: #1e3a8a;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-    <div class="editor-container">
-        <!-- SOL SÜTUN: DÜZENLEME FORMLARI -->
-        <div class="form-column">
-            <h3>CV'ni Düzenle</h3>
-            <div class="my-3">
-                <label for="import-pdf" class="form-label"><strong>Veya PDF'ten İçeri Aktar:</strong></label>
-                    <div id="pdf-loading" style="display: none; color: gray; font-style: italic;">
-                      PDF içeri aktarılıyor...
-                    </div>
-                    <div id="pdf-loaded" style="display: none; color: gray; font-style: italic;">
-                          PDF içeri aktarıldı.
-                    </div>
-                <input type="file" id="import-pdf" class="form-control" accept=".pdf">
-            </div>
-            <hr>
+<div class="editor-container">
+    <!-- SOL SÜTUN: DÜZENLEME FORMLARI -->
+    <div class="form-column">
+        <h3>Edit Your CV</h3>
+        <div class="my-3">
+            <label for="import-pdf" class="form-label"><strong>Or Import from PDF:</strong></label>
+            <div id="pdf-loading" style="display: none; color: gray;">Importing PDF...</div>
+            <div id="pdf-loaded" style="display: none; color: green;">PDF imported.</div>
+            <input type="file" id="import-pdf" class="form-control" accept=".pdf">
+        </div>
+        <hr>
 
-            <!-- Kişisel Bilgiler Formu -->
-            <div id="personal-info-form" class="form-section">
-                <h4>Kişisel Bilgiler</h4>
-                <input type="text" id="fullName" class="form-control mb-2" placeholder="Ad Soyad">
-                <input type="email" id="email" class="form-control mb-2" placeholder="E-posta">
-                <input type="tel" id="phone" class="form-control mb-2" placeholder="Telefon">
-                <input type="text" id="address" class="form-control" placeholder="Adres">
-            </div>
-
-            <!-- Özet Formu -->
-            <div id="summary-form" class="form-section">
-                <h4>Özet</h4>
-                <textarea id="summary" class="form-control" rows="5" placeholder="Profesyonel özetiniz..."></textarea>
-                    <div id="summary-loading" style="display: none; color: gray; font-style: italic;">
-                      AI özeti hazırlanıyor...
-                    </div>
-                    <div id="summary-loaded" style="display: none; color: gray; font-style: italic;">
-                        AI özeti hazırlandı.
-                    </div>
-                 <button type="button" id="generate-summary" class="btn btn-primary mt-2" >✨ AI ile Oluştur</button>
-            </div>
-
-            <!-- İş Deneyimi Formu -->
-            <div id="experience-form" class="form-section">
-                <h4>İş Deneyimi</h4>
-                <div id="experience-entries"></div>
-                <button id="add-experience" class="btn btn-secondary btn-sm mt-2">Deneyim Ekle</button>
-            </div>
-            <!-- Eğitim Formu -->
-            <div id="education-form" class="form-section">
-                <h4>Eğitim</h4>
-                <div id="education-entries"></div>
-                <button id="add-education" class="btn btn-secondary btn-sm mt-2">Eğitim Ekle</button>
-            </div>
-
-            <!-- Yetenekler -->
-            <div id="skills-form" class="form-section">
-                <h4>Yetenekler</h4>
-                <textarea id="skills" class="form-control" rows="3" placeholder="Örn: Python, Java, SQL..."></textarea>
-            </div>
-
-            <!-- Hobiler -->
-            <div id="hobbies-form" class="form-section">
-                <h4>Hobiler</h4>
-                <textarea id="hobbies" class="form-control" rows="3" placeholder="Kitap okuma, yüzme, müzik..."></textarea>
-            </div>
-
-
+        <div id="personal-info-form" class="form-section">
+            <h4>Personal Information</h4>
+            <input type="text" id="fullName" class="form-control mb-2" placeholder="Ad Soyad">
+            <input type="email" id="email" class="form-control mb-2" placeholder="E-posta">
+            <input type="tel" id="phone" class="form-control mb-2" placeholder="Telefon">
+            <input type="text" id="address" class="form-control" placeholder="Adres">
         </div>
 
-        <!-- SAĞ SÜTUN: CANLI ÖNİZLEME -->
-        <div class="preview-column">
-            <div id="cv-preview" class="cv-preview">
-                <h3 id="preview-fullName">Adınız Soyadınız</h3>
-                <p id="preview-contact" class="text-center small text-muted"></p>
-
-                <p class="section-title">Özet</p>
-                <p id="preview-summary">Profesyonel özetiniz burada görünecek.</p>
-
-                <p class="section-title">İş Deneyimi</p>
-                <div id="preview-experience"></div>
-
-                <p class="section-title">Eğitim</p>
-                <div id="preview-education"></div>
-
-                <p class="section-title">Yetenekler</p>
-                <p id="preview-skills"></p>
-
-                <p class="section-title">Hobiler</p>
-                <p id="preview-hobbies"></p>
-
-            </div>
-
-        <button id="download-cv" class="btn btn-primary mt-2">PDF olarak indir</button>
+        <div id="summary-form" class="form-section">
+            <h4>Summary</h4>
+            <textarea id="summary" class="form-control" rows="5" placeholder="Profesyonel özetiniz..."></textarea>
+            <div id="summary-loading" style="display: none; color: gray;">AI summary is being prepared...</div>
+            <div id="summary-loaded" style="display: none; color: green;">AI summary prepared.</div>
+            <button type="button" id="generate-summary" class="btn btn-primary mt-2">✨ Create with AI</button>
         </div>
 
-        </div> <div id="chat-toggle">
-                <button>💬</button>
-            </div>
+        <div id="experience-form" class="form-section">
+            <h4>Work Experience</h4>
+            <div id="experience-entries"></div>
+            <button id="add-experience" class="btn btn-secondary btn-sm mt-2">Add Experience</button>
+        </div>
 
-            <div id="chatbox">
-                <div class="chat-header">CV Chatbot Asistant</div>
-                <div id="chat-messages"></div>
-                <div class="chat-footer">
-                    <form id="chat-form">
-                        <textarea id="chat-input" rows="2" placeholder="Ask a question..." required></textarea>
-                        <button type="submit" id="chat-send-button" class="btn btn-primary btn-sm">Send</button>
-                    </form>
-                </div>
-            </div>
+        <div id="education-form" class="form-section">
+            <h4>Education</h4>
+            <div id="education-entries"></div>
+            <button id="add-education" class="btn btn-secondary btn-sm mt-2">Add Education</button>
+        </div>
+
+        <!-- YENİ: Sertifikalar Formu -->
+        <div id="certificates-form" class="form-section">
+            <h4>Certificates</h4>
+            <div id="certificate-entries"></div>
+            <button id="add-certificate" class="btn btn-secondary btn-sm mt-2">Add Certificate</button>
+        </div>
+
+        <!-- YENİ: Diller Formu -->
+        <div id="languages-form" class="form-section">
+            <h4>Languages</h4>
+            <div id="language-entries"></div>
+            <button id="add-language" class="btn btn-secondary btn-sm mt-2">Add Language</button>
+        </div>
+
+        <div id="skills-form" class="form-section">
+            <h4>Skills</h4>
+            <textarea id="skills" class="form-control" rows="3" placeholder="Örn: Python, Java, SQL..."></textarea>
+        </div>
+
+        <div id="hobbies-form" class="form-section">
+            <h4>Hobbies</h4>
+            <textarea id="hobbies" class="form-control" rows="3" placeholder="Kitap okuma, yüzme, müzik..."></textarea>
+        </div>
     </div>
 
+    <!-- SAĞ SÜTUN: CANLI ÖNİZLEME -->
+    <div class="preview-column">
 
-    <script >
-       // create.html içindeki <script> etiketinin içi
+        <div class="template-selector">
+            <h5>Select Template</h5>
+            <button class="btn btn-outline-secondary template-btn active" data-template="classic">Classic</button>
+            <button class="btn btn-outline-secondary template-btn" data-template="modern">Modern</button>
+            <!-- YENİ: Canlı Şablon Butonu -->
+            <button class="btn btn-outline-secondary template-btn" data-template="vibrant">Live</button>
+        </div>
 
-        // 1. TEMEL DEĞİŞKENLER VE CV VERİ YAPISI
-        let cvData = {
-            personalInfo: { fullName: '', email: '', phone: '', address: '' },
-            summary: '',
-            workExperience: [],
-            education: [],
-            skills: [],
-            hobbies: [],
-        };
+        <div id="cv-preview">
+            <!-- Bu alan JavaScript tarafından dinamik olarak doldurulacak -->
+        </div>
 
-        const formElements = {
-            fullName: document.getElementById('fullName'),
-            email: document.getElementById('email'),
-            phone: document.getElementById('phone'),
-            address: document.getElementById('address'),
-            summary: document.getElementById('summary'),
-            experienceEntries: document.getElementById('experience-entries'),
-            addExperienceBtn: document.getElementById('add-experience'),
-        };
+        <button id="download-cv" class="btn btn-primary mt-3 w-100">Download as PDF</button>
+    </div>
 
-        const previewElements = {
-            fullName: document.getElementById('preview-fullName'),
-            contact: document.getElementById('preview-contact'),
-            summary: document.getElementById('preview-summary'),
-            experience: document.getElementById('preview-experience'),
+</div>
 
-        };
+<!-- CHATBOT HTML'i (Değişiklik Yok) -->
+<div id="chat-toggle">
+    <button>💬</button>
+</div>
+<div id="chatbox">
+    <div class="chat-header">CV Chatbot Assistant</div>
+    <div id="chat-messages"></div>
+    <div class="chat-footer">
+        <form id="chat-form">
+            <textarea id="chat-input" rows="2" placeholder="Ask a question..." required></textarea>
+            <button type="submit" id="chat-send-button" class="btn btn-primary btn-sm">Send</button>
+        </form>
+    </div>
+</div>
 
 
-        // 2. RENDER FONKSİYONLARI (Veriyi HTML'e dönüştürür)
+<!-- GÜNCELLENMİŞ SCRIPT -->
+<script>
+    // 1. TEMEL DEĞİŞKENLER VE CV VERİ YAPISI
+    let currentTemplate = 'classic';
 
-        function renderAll() {
-            renderPersonalInfo();
-            renderSummary();
-            renderExperience();
-            renderEducation();
-            renderSkills();
-            renderHobbies();
-        }
+    // YENİ: cvData'ya sertifikalar ve diller eklendi
+    let cvData = {
+        personalInfo: {fullName: '', email: '', phone: '', address: ''},
+        summary: '',
+        workExperience: [],
+        education: [],
+        certificates: [],
+        languages: [],
+        skills: [],
+        hobbies: [],
+    };
 
-        function renderPersonalInfo() {
-            // Formu doldur
-            formElements.fullName.value = cvData.personalInfo.fullName;
-            formElements.email.value = cvData.personalInfo.email;
-            formElements.phone.value = cvData.personalInfo.phone;
-            formElements.address.value = cvData.personalInfo.address;
+    const formElements = {
+        fullName: document.getElementById('fullName'),
+        email: document.getElementById('email'),
+        phone: document.getElementById('phone'),
+        address: document.getElementById('address'),
+        summary: document.getElementById('summary'),
+        skills: document.getElementById('skills'),
+        hobbies: document.getElementById('hobbies'),
+        experienceEntries: document.getElementById('experience-entries'),
+        addExperienceBtn: document.getElementById('add-experience'),
+        educationEntries: document.getElementById('education-entries'),
+        addEducationBtn: document.getElementById('add-education'),
+        // YENİ: Sertifika ve Dil form elementleri
+        certificateEntries: document.getElementById('certificate-entries'),
+        addCertificateBtn: document.getElementById('add-certificate'),
+        languageEntries: document.getElementById('language-entries'),
+        addLanguageBtn: document.getElementById('add-language'),
+    };
 
-            // Önizlemeyi güncelle
-            previewElements.fullName.textContent = cvData.personalInfo.fullName || 'Adınız Soyadınız';
-            previewElements.contact.textContent = `${cvData.personalInfo.email} | ${cvData.personalInfo.phone} | ${cvData.personalInfo.address}`;
-        }
+    // =================================================================
+    // ŞABLON OLUŞTURUCU FONKSİYONLAR
+    // =================================================================
 
-        function renderSummary() {
-            formElements.summary.value = cvData.summary;
-            previewElements.summary.textContent = cvData.summary || 'Profesyonel özetiniz burada görünecek.';
-        }
+    const templates = {
+        // ŞABLON 1: KLASİK
+        classic: function (data) {
+            const experienceHtml = data.workExperience.map(exp => `<div class="mb-3"><strong>${exp.jobTitle || 'Ünvan'}</strong>, <span>${exp.company || 'Şirket'}</span><p style="white-space: pre-wrap; margin-top: 5px;">${exp.description || ''}</p></div>`).join('');
+            const educationHtml = data.education.map(edu => `<p><strong>${edu.degree || 'Derece'}</strong> - ${edu.institution || 'Okul'}</p>`).join('');
+            const certificatesHtml = data.certificates.map(cert => `<p><strong>${cert.name || 'Sertifika Adı'}</strong> - ${cert.issuer || 'Veren Kurum'}</p>`).join('');
+            const languagesHtml = data.languages.map(lang => `<p><strong>${lang.name || 'Dil'}</strong>: ${lang.level || 'Seviye'}</p>`).join('');
 
-        function renderExperience() {
-            // Formları ve önizlemeyi temizle
-            formElements.experienceEntries.innerHTML = '';
-            previewElements.experience.innerHTML = '';
-
-            cvData.workExperience.forEach((exp, index) => {
-
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'card card-body mb-2';
-                entryDiv.innerHTML = `
-                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="jobTitle" value="${exp.jobTitle}" placeholder="Ünvan">
-                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="company" value="${exp.company}" placeholder="Şirket">
-                    <textarea class="form-control" data-index="${index}" data-field="description" rows="3" placeholder="Açıklama...">${exp.description}</textarea>
+            return `
+                    <h3 class="classic-title">${data.personalInfo.fullName || 'Name Surname'}</h3>
+                    <p class="classic-contact">${data.personalInfo.email} | ${data.personalInfo.phone} | ${data.personalInfo.address}</p>
+                    <p class="classic-section-title">Summary</p><p>${data.summary || '...'}</p>
+                    <p class="classic-section-title">Work Experience</p><div>${experienceHtml}</div>
+                    <p class="classic-section-title">Education</p><div>${educationHtml}</div>
+                    <p class="classic-section-title">Certificates</p><div>${certificatesHtml}</div>
+                    <p class="classic-section-title">Languages</p><div>${languagesHtml}</div>
+                    <p class="classic-section-title">Skills</p><p>${data.skills.join(', ')}</p>
+                    <p class="classic-section-title">Hobbies</p><p>${data.hobbies.join(', ')}</p>
                 `;
-                formElements.experienceEntries.appendChild(entryDiv);
+        },
 
-                // Önizleme alanını oluştur
-                const previewDiv = document.createElement('div');
-                previewDiv.className = 'mb-3';
-                previewDiv.innerHTML = `
-                    <strong>${exp.jobTitle || 'Ünvan'}</strong>, <span>${exp.company || 'Şirket'}</span>
-                    <p style="white-space: pre-wrap;">${exp.description || ''}</p>
+        // ŞABLON 2: MODERN
+        modern: function (data) {
+            const experienceHtml = data.workExperience.map(exp => `<div class="mb-3"><strong>${exp.jobTitle || 'Ünvan'}</strong>, <span>${exp.company || 'Şirket'}</span><p style="white-space: pre-wrap; margin-top: 5px;">${exp.description || ''}</p></div>`).join('');
+            const educationHtml = data.education.map(edu => `<p><strong>${edu.degree || 'Derece'}</strong> - ${edu.institution || 'Okul'}</p>`).join('');
+            const certificatesHtml = data.certificates.map(cert => `<p><strong>${cert.name || 'Sertifika Adı'}</strong> - ${cert.issuer || 'Veren Kurum'}</p>`).join('');
+            const languagesHtml = data.languages.map(lang => `<p class="vibrant-list-item">${lang.name || 'Dil'}: ${lang.level || 'Seviye'}</p>`).join('');
+
+            return `
+                    <div class="modern-container">
+                        <div class="modern-left-col">
+                            <h3 class="modern-title">${data.personalInfo.fullName || 'Name Surname'}</h3>
+                            <p class="modern-section-title">Contact</p>
+                            <span class="modern-contact-item">${data.personalInfo.email || ''}</span>
+                            <span class="modern-contact-item">${data.personalInfo.phone || ''}</span>
+                            <span class="modern-contact-item">${data.personalInfo.address || ''}</span>
+                            <p class="modern-section-title">Skills</p><p>${data.skills.join(', ')}</p>
+                            <p class="modern-section-title">Languages</p><div>${languagesHtml}</div>
+                            <p class="modern-section-title">Hobbies</p><p>${data.hobbies.join(', ')}</p>
+                        </div>
+                        <div class="modern-right-col">
+                            <p class="modern-section-title">Summary</p><p>${data.summary || '...'}</p>
+                            <p class="modern-section-title">Work Experience </p><div>${experienceHtml}</div>
+                            <p class="modern-section-title">Education</p><div>${educationHtml}</div>
+                            <p class="modern-section-title">Certificates</p><div>${certificatesHtml}</div>
+                        </div>
+                    </div>
                 `;
-                previewElements.experience.appendChild(previewDiv);
-            });
-        }
-        function renderEducation() {
-            const container = document.getElementById('education-entries');
-            const preview = document.getElementById('preview-education');
-            container.innerHTML = '';
-            preview.innerHTML = '';
+        },
 
-            cvData.education.forEach((edu, index) => {
-                const div = document.createElement('div');
-                div.className = 'card card-body mb-2';
-                div.innerHTML = `
-                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="degree" data-type="education" value="${edu.degree}" placeholder="Derece">
-                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="institution" data-type="education" value="${edu.institution}" placeholder="Okul">
+        // YENİ - ŞABLON 3: CANLI
+        vibrant: function (data) {
+            const experienceHtml = data.workExperience.map(exp => `<div class="mb-3"><strong>${exp.jobTitle || 'Title'}</strong>, <span>${exp.company || 'Company'}</span><p style="white-space: pre-wrap; font-size: 0.9em; color: #4b5563;">${exp.description || ''}</p></div>`).join('');
+            const educationHtml = data.education.map(edu => `<p class="vibrant-list-item"><strong>${edu.degree || 'Degree'}</strong>, ${edu.institution || 'Institution'}</p>`).join('');
+            const certificatesHtml = data.certificates.map(cert => `<p class="vibrant-list-item"><strong>${cert.name || 'Certificate Name'}</strong> (${cert.issuer || 'Institution'})</p>`).join('');
+            const languagesHtml = data.languages.map(lang => `<p class="vibrant-list-item">${lang.name || 'Dil'} - <strong>${lang.level || 'Level'}</strong></p>`).join('');
+            const skillsHtml = data.skills.map(skill => `<span class="badge bg-secondary me-1 mb-1">${skill}</span>`).join('');
+
+            const icon = (path) => `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi" viewBox="0 0 16 16">${path}</svg>`;
+            const briefcaseIcon = icon('<path d="M8 1a2 2 0 0 0-2 2v2H5V3a3 3 0 0 1 6 0v2h-1V3a2 2 0 0 0-2-2zM4 6h8v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z"/>');
+            const gradCapIcon = icon('<path d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0l7.5-3a.5.5 0 0 0 .025-.917l-7.5-3.5zM8 5.482 1.5 8 8 10.518 14.5 8 8 5.482z"/><path d="M1 9.583v2.5a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-2.5l-7 3.262-7-3.262zM1 12.5a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-1.5a.5.5 0 0 0-1 0V12a.5.5 0 0 1-.5.5h-12a.5.5 0 0 1-.5-.5v-1.5a.5.5 0 0 0-1 0v1.5z"/>');
+            const certIcon = icon('<path d="M4.54.146A.5.5 0 0 1 5 .5v1.618a.5.5 0 0 1-.447.498l-1.884.314a.5.5 0 0 1-.577-.497V.5a.5.5 0 0 1 .5-.5h.928a.5.5 0 0 1 .192.041zm4.94 0a.5.5 0 0 1 .5.5v4.062a.5.5 0 0 1-.447.498l-1.884.314a.5.5 0 0 1-.577-.497V.5a.5.5 0 0 1 .5-.5h.928a.5.5 0 0 1 .192.041zM2.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 .5-.5v-13a.5.5 0 0 0-.5-.5H2.5z"/>');
+            const langIcon = icon('<path d="M4.52 7.228A.5.5 0 0 0 4 7.5v1.59a.5.5 0 0 0 .52.472l.43.086a.5.5 0 0 1 .45.49v.443a.5.5 0 0 0 .7.47L7 9.58V7.5a.5.5 0 0 0-.5-.5h-2a.5.5 0 0 0-.48.228zM1 1.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-13z"/>');
+            const toolsIcon = icon('<path d="M14.5 5.5a.5.5 0 0 1 .5.5v1.5a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm-11-1a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm3.5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>');
+
+            return `
+                    <div class="vibrant-container">
+                        <header class="vibrant-header">
+                            <h2 class="vibrant-title">${data.personalInfo.fullName || 'Name Surname'}</h2>
+                            <div class="vibrant-contact">${data.personalInfo.email} • ${data.personalInfo.phone}</div>
+                        </header>
+                        <div>
+                            <p>${data.summary || '...'}</p>
+                        </div>
+                        <div class="vibrant-body">
+                            <div>
+                                <h5 class="vibrant-section-title">${briefcaseIcon}Work Experience</h5>
+                                ${experienceHtml}
+                                <h5 class="vibrant-section-title mt-4">${gradCapIcon}Education</h5>
+                                ${educationHtml}
+                            </div>
+                            <div>
+                                <h5 class="vibrant-section-title">${certIcon}Certificates</h5>
+                                ${certificatesHtml}
+                                <h5 class="vibrant-section-title mt-4">${langIcon}Language</h5>
+                                ${languagesHtml}
+                                <h5 class="vibrant-section-title mt-4">${toolsIcon}Skills</h5>
+                                ${skillsHtml}
+                            </div>
+                        </div>
+                    </div>
                 `;
-                container.appendChild(div);
-
-                const prev = document.createElement('p');
-                prev.innerHTML = `<strong>${edu.degree || ''}</strong> - ${edu.institution || ''}`;
-                preview.appendChild(prev);
-            });
         }
+    };
 
-        function renderSkills() {
-            document.getElementById('skills').value = cvData.skills.join(', ');
-            document.getElementById('preview-skills').textContent = cvData.skills.join(', ');
+    // =================================================================
+    // RENDER FONKSİYONLARI
+    // =================================================================
+
+    function renderPreview() {
+        const previewContainer = document.getElementById('cv-preview');
+        if (templates[currentTemplate]) {
+            previewContainer.innerHTML = templates[currentTemplate](cvData);
+        } else {
+            previewContainer.innerHTML = '<p class="text-danger">Şablon bulunamadı.</p>';
         }
+    }
 
-        function renderHobbies() {
-            document.getElementById('hobbies').value = cvData.hobbies.join(', ');
-            document.getElementById('preview-hobbies').textContent = cvData.hobbies.join(', ');
-        }
+    function updateForms() {
+        formElements.fullName.value = cvData.personalInfo.fullName;
+        formElements.email.value = cvData.personalInfo.email;
+        formElements.phone.value = cvData.personalInfo.phone;
+        formElements.address.value = cvData.personalInfo.address;
+        formElements.summary.value = cvData.summary;
+        formElements.skills.value = cvData.skills.join(', ');
+        formElements.hobbies.value = cvData.hobbies.join(', ');
 
+        renderExperienceForm();
+        renderEducationForm();
+        renderCertificatesForm();
+        renderLanguagesForm();
+    }
 
-
-        // 3. EVENT LISTENERS (Kullanıcı etkileşimlerini yakalar)
-
-        // Form alanlarındaki genel değişiklikler
-        document.getElementById('personal-info-form').addEventListener('input', (e) => {
-            cvData.personalInfo[e.target.id] = e.target.value;
-            renderPersonalInfo();
-        });
-
-        formElements.summary.addEventListener('input', () => {
-            cvData.summary = formElements.summary.value;
-            renderSummary();
-        });
-
-        // İş deneyimi gibi dinamik alanlar için
-        formElements.experienceEntries.addEventListener('input', (e) => {
-            const index = e.target.dataset.index;
-            const field = e.target.dataset.field;
-
-            const caretPosition = e.target.selectionStart;//imleç pozisyonunu korur.
-
-            if (index !== undefined && field) {
-                cvData.workExperience[index][field] = e.target.value;
-                renderExperience(); // Tüm deneyim bölümünü yeniden çiz
-            }
-            const updatedInputs = formElements.experienceEntries.querySelectorAll(`[data-index="${index}"][data-field="${field}"]`);
-            if (updatedInputs.length > 0) {
-                const newInput = updatedInputs[0];
-                newInput.focus();
-                newInput.setSelectionRange(caretPosition, caretPosition);
-            }
-        });
-
-        formElements.addExperienceBtn.addEventListener('click', () => {
-            cvData.workExperience.push({ jobTitle: '', company: '', description: '' });
-            renderExperience();
-        });
-        document.getElementById('skills').addEventListener('input', (e) => {
-            cvData.skills = e.target.value.split(',').map(s => s.trim());
-            renderSkills();
-        });
-
-        document.getElementById('hobbies').addEventListener('input', (e) => {
-            cvData.hobbies = e.target.value.split(',').map(h => h.trim());
-            renderHobbies();
-        });
-
-        document.getElementById('education-entries').addEventListener('input', (e) => {
-            const index = e.target.dataset.index;
-            const field = e.target.dataset.field;
-            const type = e.target.dataset.type;
-
-            if (type === 'education' && index !== undefined && field) {
-                cvData.education[index][field] = e.target.value;
-                renderEducation();
-            }
-        });
-
-        document.getElementById('add-education').addEventListener('click', () => {
-            cvData.education.push({ degree: '', institution: '' });
-            renderEducation();
-        });
-        document.getElementById("generate-summary").addEventListener("click", function () {
-            document.getElementById("summary-loading").style.display = "block";
-            document.getElementById("summary-loaded").style.display = "none";
-            // `cvData` objesinden güncel verileri al
-            const currentName = cvData.personalInfo.fullName;
-            // Yetenekleri virgülle ayrılmış bir stringe çevir
-            const currentSkills = cvData.skills.join(', ');
-
-            // Eğitim ve deneyim bilgilerini daha anlamlı bir stringe dönüştürün
-            // Örneğin: "Boğaziçi Üniversitesi - Bilgisayar Mühendisliği; X Şirketi - Yazılım Mühendisi;"
-            const currentEducation = cvData.education.map(edu => `${edu.degree} - ${edu.institution}`).join('; ');
-            const currentExperience = cvData.workExperience.map(exp => `${exp.jobTitle} at ${exp.company}`).join('; ');
-
-
-            fetch('generate-summary/', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-              },
-              body: JSON.stringify({
-                name: currentName,
-                skills: currentSkills,
-                education: currentEducation,
-                experience: currentExperience
-              })
-            })
-            .then(response => {
-                // Hata durumlarını daha iyi yakalamak için
-                if (!response.ok) {
-                    // Sunucu tarafından dönen hatayı JSON olarak almayı dene
-                    return response.json().then(err => { throw new Error(err.error || 'Bilinmeyen sunucu hatası'); });
+    // --- Dinamik Form Alanı Render Fonksiyonları ---
+    function renderDynamicForm(container, dataArray, fields, type) {
+        container.innerHTML = '';
+        dataArray.forEach((item, index) => {
+            const entryDiv = document.createElement('div');
+            entryDiv.className = 'card card-body mb-2';
+            let inputsHtml = '';
+            fields.forEach(field => {
+                if (field.tag === 'textarea') {
+                    inputsHtml += `<textarea class="form-control" data-index="${index}" data-field="${field.name}" data-type="${type}" rows="3" placeholder="${field.placeholder}">${item[field.name] || ''}</textarea>`;
+                } else {
+                    inputsHtml += `<input type="text" class="form-control mb-1" data-index="${index}" data-field="${field.name}" data-type="${type}" value="${item[field.name] || ''}" placeholder="${field.placeholder}">`;
                 }
-                return response.json();
-            })
-            .then(data => {
-              document.getElementById("summary").value = data.summary;
-              // CV data'yı da güncelle ki önizleme de değişsin
-              cvData.summary = data.summary;
-              renderSummary(); // Summary alanını yeniden render et
-              document.getElementById("summary-loading").style.display = "none";
-              document.getElementById("summary-loaded").style.display = "block";
+            });
+            entryDiv.innerHTML = inputsHtml;
+            container.appendChild(entryDiv);
+        });
+    }
 
+    function renderExperienceForm() {
+        renderDynamicForm(formElements.experienceEntries, cvData.workExperience, [
+            {name: 'jobTitle', placeholder: 'Ünvan'},
+            {name: 'company', placeholder: 'Şirket'},
+            {name: 'description', placeholder: 'Açıklama...', tag: 'textarea'}
+        ], 'experience');
+    }
+
+    function renderEducationForm() {
+        renderDynamicForm(formElements.educationEntries, cvData.education, [
+            {name: 'degree', placeholder: 'Derece'},
+            {name: 'institution', placeholder: 'Okul'}
+        ], 'education');
+    }
+
+    function renderCertificatesForm() {
+        renderDynamicForm(formElements.certificateEntries, cvData.certificates, [
+            {name: 'name', placeholder: 'Sertifika Adı'},
+            {name: 'issuer', placeholder: 'Veren Kurum'}
+        ], 'certificate');
+    }
+
+    function renderLanguagesForm() {
+        renderDynamicForm(formElements.languageEntries, cvData.languages, [
+            {name: 'name', placeholder: 'Dil (Örn: İngilizce)'},
+            {name: 'level', placeholder: 'Seviye (Örn: C1 - İleri)'}
+        ], 'language');
+    }
+
+    // =================================================================
+    // EVENT LISTENERS
+    // =================================================================
+
+    function handleFormInput(e) {
+        const {id, value} = e.target;
+        const dataType = e.target.closest('.form-section')?.id;
+
+        if (dataType === 'personal-info-form') cvData.personalInfo[id] = value;
+        else if (id === 'summary') cvData.summary = value;
+        else if (id === 'skills') cvData.skills = value.split(',').map(s => s.trim());
+        else if (id === 'hobbies') cvData.hobbies = value.split(',').map(h => h.trim());
+
+        renderPreview();
+    }
+
+    function handleDynamicInput(e) {
+        const {index, field, type} = e.target.dataset;
+        if (index === undefined || !field || !type) return;
+
+        const dataMap = {
+            experience: cvData.workExperience,
+            education: cvData.education,
+            certificate: cvData.certificates,
+            language: cvData.languages,
+        };
+
+        if (dataMap[type]) {
+            dataMap[type][index][field] = e.target.value;
+            renderPreview();
+        }
+    }
+
+    document.getElementById('personal-info-form').addEventListener('input', handleFormInput);
+    document.getElementById('summary-form').addEventListener('input', handleFormInput);
+    document.getElementById('skills-form').addEventListener('input', handleFormInput);
+    document.getElementById('hobbies-form').addEventListener('input', handleFormInput);
+
+    document.getElementById('experience-entries').addEventListener('input', handleDynamicInput);
+    document.getElementById('education-entries').addEventListener('input', handleDynamicInput);
+    document.getElementById('certificate-entries').addEventListener('input', handleDynamicInput);
+    document.getElementById('language-entries').addEventListener('input', handleDynamicInput);
+
+    formElements.addExperienceBtn.addEventListener('click', () => {
+        cvData.workExperience.push({jobTitle: '', company: '', description: ''});
+        updateForms();
+        renderPreview();
+    });
+    formElements.addEducationBtn.addEventListener('click', () => {
+        cvData.education.push({degree: '', institution: ''});
+        updateForms();
+        renderPreview();
+    });
+    formElements.addCertificateBtn.addEventListener('click', () => {
+        cvData.certificates.push({name: '', issuer: ''});
+        updateForms();
+        renderPreview();
+    });
+    formElements.addLanguageBtn.addEventListener('click', () => {
+        cvData.languages.push({name: '', level: ''});
+        updateForms();
+        renderPreview();
+    });
+
+    document.querySelectorAll('.template-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentTemplate = e.target.dataset.template;
+            renderPreview();
+        });
+    });
+
+    // =================================================================
+    // API VE DOSYA İŞLEMLERİ
+    // =================================================================
+
+    document.getElementById("generate-summary").addEventListener("click", function () {
+        document.getElementById("summary-loading").style.display = "block";
+        // YENİ: Sertifika ve dil verileri eklendi
+        const payload = {
+            name: cvData.personalInfo.fullName,
+            skills: cvData.skills.join(', '),
+            education: cvData.education.map(e => `${e.degree} at ${e.institution}`).join('; '),
+            experience: cvData.workExperience.map(e => `${e.jobTitle} at ${e.company}`).join('; '),
+            certificates: cvData.certificates.map(c => c.name).join('; '),
+            languages: cvData.languages.map(l => l.name).join('; '),
+        };
+
+        fetch('generate-summary/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+            body: JSON.stringify(payload)
+        })
+            .then(response => response.ok ? response.json() : Promise.reject('Sunucu hatası'))
+            .then(data => {
+                cvData.summary = data.summary;
+                updateForms();
+                renderPreview();
+                document.getElementById("summary-loading").style.display = "none";
+                document.getElementById("summary-loaded").style.display = "block";
             })
             .catch(error => {
-              console.error('AI Özet Hatası:', error);
-              alert(`AI özeti alınamadı: ${error.message || error}. Lütfen tüm alanları doldurduğunuzdan emin olun.`);
-              document.getElementById("summary-loading").style.display = "none";
+                console.error('AI Özet Hatası:', error);
+                document.getElementById("summary-loading").style.display = "none";
             });
+    });
 
-        });
+    document.getElementById('import-pdf').addEventListener('change', async (e) => {
+        document.getElementById("pdf-loading").style.display = "block";
+        const file = e.target.files[0];
+        if (!file) return;
 
+        const formData = new FormData();
+        formData.append('pdf_file', file);
+        try {
+            const response = await fetch("{% url 'parse_pdf_for_edit' %}", {method: "POST", body: formData});
+            if (!response.ok) throw new Error(await response.text());
 
-
-        // 4. PDF İÇERİ AKTARMA
-
-        const importPdfInput = document.getElementById('import-pdf');
-        importPdfInput.addEventListener('change', async (e) => {
-            document.getElementById("pdf-loading").style.display = "block";
-            document.getElementById("pdf-loaded").style.display = "none";
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('pdf_file', file);
-
-            try {
-                const response = await fetch("{% url 'parse_pdf_for_edit' %}", {
-                    method: "POST",
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Bilinmeyen bir hata oluştu.');
-                }
-
-                const data = await response.json();
-                cvData = {
-                    personalInfo: data.personalInfo || { fullName: '', email: '', phone: '', address: '' },
-                    summary: data.summary || '',
-                    workExperience: data.workExperience || [],
-                    education: data.education || [],
-                    skills: data.skills || [],
-                    hobbies: data.hobbies || []
-                };
-                renderAll(); // Tüm arayüzü yeni veri ile yeniden çiz
-                document.getElementById("pdf-loading").style.display = "none";
-                document.getElementById("pdf-loaded").style.display = "block";
-
-            } catch (error) {
-                document.getElementById("pdf-loading").style.display = "none";
-                alert(`Hata: ${error.message}`);
-            }
-        });
-
-        // CHATBOT KISMI
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-        function toggleChat() {
-            const box = document.getElementById("chatbox");
-            box.style.display = box.style.display === "none" || box.style.display === "" ? "flex" : "none";
-        }
-
-        async function sendChat() {
-            const input = document.getElementById("chat-input");
-            const message = input.value.trim();
-            if (!message) return;
-
-            const chatMessages = document.getElementById("chat-messages");
-            appendMessage(message, 'user');
-            input.value = "";
-
-            const loadingElement = appendMessage('...', 'loading');
-
-            try {
-                const response = await fetch("/api/chatbot/", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": getCookie('csrftoken')
-                    },
-                    body: JSON.stringify({ question: message })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json(); // Hata JSON'ını yakalamaya çalış
-                    throw new Error(`Sunucu hatası: ${response.status} - ${errorData.error || response.statusText}`);
-                }
-
-                const data = await response.json();
-                loadingElement.remove();
-                appendMessage(data.answer || "Anlaşılır bir cevap alınamadı.", 'bot');
-            } catch (error) {
-                console.error("Chat Hatası:", error);
-                loadingElement.remove();
-                appendMessage(`Üzgünüm, bir hata oluştu: ${error.message}. Lütfen daha sonra tekrar deneyin.`, 'error');
-            }
-        }
-
-        function appendMessage(text, type) {
-            const chatMessages = document.getElementById("chat-messages");
-            const messageWrapper = document.createElement("div");
-            messageWrapper.classList.add('chat-message');
-
-            const messageBubble = document.createElement("div");
-            messageBubble.textContent = text;
-
-            if (type === 'user') {
-                messageBubble.classList.add('user-message');
-            } else if (type === 'bot') {
-                messageBubble.classList.add('bot-message');
-            } else if (type === 'loading') {
-                messageBubble.classList.add('loading-message');
-            } else if (type === 'error') {
-                messageBubble.classList.add('error-message');
-            }
-
-            messageWrapper.appendChild(messageBubble);
-            chatMessages.appendChild(messageWrapper);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            return messageWrapper;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('chat-toggle').addEventListener('click', toggleChat);
-            document.getElementById('chat-form').addEventListener('submit', function (e) {
-                e.preventDefault();
-                sendChat();
-            });
-        });
-
-        // Sayfa yüklendiğinde ilk render'ı yap
-        renderAll();
-
-        window.addEventListener('DOMContentLoaded', function () {
-          const button = document.getElementById("download-cv");
-          const preview = document.getElementById("cv-preview");
-
-          if (!button || !preview) {
-            console.error("Buton veya cv-preview elementi bulunamadı!");
-            return;
-          }
-
-          button.addEventListener("click", function () {
-            console.log("PDF oluşturuluyor...");
-
-            const options = {
-              margin: [0.5, 0.5, 0.5, 0.5],
-              filename: 'cv_ozeti.pdf',
-              image: { type: 'jpeg', quality: 0.98 },
-              html2canvas: { scale: 2, useCORS: true },
-              jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            const data = await response.json();
+            // YENİ: Sertifika ve dil verileri alınıyor
+            cvData = {
+                personalInfo: data.personalInfo || {fullName: '', email: '', phone: '', address: ''},
+                summary: data.summary || '',
+                workExperience: data.workExperience || [],
+                education: data.education || [],
+                certificates: data.certificates || [],
+                languages: data.languages || [],
+                skills: data.skills || [],
+                hobbies: data.hobbies || []
             };
+            updateForms();
+            renderPreview();
+            document.getElementById("pdf-loading").style.display = "none";
+            document.getElementById("pdf-loaded").style.display = "block";
+        } catch (error) {
+            document.getElementById("pdf-loading").style.display = "none";
+            alert(`Hata: ${error.message}`);
+        }
+    });
 
-            html2pdf().set({
-  margin: 0.5,
-  filename: 'cv_ozeti.pdf',
-  image: { type: 'jpeg', quality: 0.98 },
-  html2canvas: {
-    scale: 2,
-    scrollY: 0,
-    windowHeight: document.getElementById("cv-preview").scrollHeight
-  },
-  jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-}).from(document.getElementById("cv-preview")).save();
-          });
+    document.getElementById("download-cv").addEventListener("click", function () {
+        const element = document.getElementById("cv-preview");
+        const options = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: `${(cvData.personalInfo.fullName || 'CV').replace(/ /g, '_')}.pdf`,
+            image: {type: 'jpeg', quality: 0.98},
+            html2canvas: {scale: 2, useCORS: true, scrollY: 0, windowHeight: element.scrollHeight},
+            jsPDF: {unit: 'in', format: 'a4', orientation: 'portrait'}
+        };
+        html2pdf().set(options).from(element).save();
+    });
+
+
+    // =================================================================
+    // CHATBOT KISMI (Değişiklik Yok)
+    // =================================================================
+    function getCookie(name) {
+        let cV = null;
+        if (document.cookie && document.cookie !== '') {
+            const cs = document.cookie.split(';');
+            for (let i = 0; i < cs.length; i++) {
+                const c = cs[i].trim();
+                if (c.substring(0, name.length + 1) === (name + '=')) {
+                    cV = decodeURIComponent(c.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cV;
+    }
+
+    function toggleChat() {
+        const b = document.getElementById("chatbox");
+        b.style.display = b.style.display === "none" || b.style.display === "" ? "flex" : "none";
+    }
+
+    async function sendChat() {
+        const i = document.getElementById("chat-input");
+        const m = i.value.trim();
+        if (!m) return;
+        const cM = document.getElementById("chat-messages");
+        appendMessage(m, 'user');
+        i.value = "";
+        const lE = appendMessage('...', 'loading');
+        try {
+            const r = await fetch("/api/chatbot/", {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "X-CSRFToken": getCookie('csrftoken')},
+                body: JSON.stringify({question: m})
+
+            });
+            console.log(r)
+            if (!r.ok) {
+                const eD = await r.json();
+                throw new Error(`Sunucu hatası: ${r.status} - ${eD.error || r.statusText}`);
+            }
+            const d = await r.json();
+            lE.remove();
+            appendMessage(d.answer || "Cevap alınamadı.", 'bot');
+        } catch (e) {
+            console.error("Chat Hatası:", e);
+            lE.remove();
+            appendMessage(`Bir hata oluştu: ${e.message}.`, 'error');
+        }
+    }
+
+    function appendMessage(t, type) {
+        const cM = document.getElementById("chat-messages");
+        const mW = document.createElement("div");
+        mW.classList.add('chat-message');
+        const mB = document.createElement("div");
+        mB.textContent = t;
+        if (type === 'user') {
+            mB.classList.add('user-message');
+        } else if (type === 'bot') {
+            mB.classList.add('bot-message');
+        } else if (type === 'loading') {
+            mB.classList.add('loading-message');
+        } else if (type === 'error') {
+            mB.classList.add('error-message');
+        }
+        mW.appendChild(mB);
+        cM.appendChild(mW);
+        cM.scrollTop = cM.scrollHeight;
+        return mW;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('chat-toggle').addEventListener('click', toggleChat);
+        document.getElementById('chat-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            sendChat();
         });
+    });
 
-
-
-
-    </script>
+    // Sayfa yüklendiğinde ilk render'ı yap
+    updateForms();
+    renderPreview();
+</script>
 
 <script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
 
