@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>CV Oluşturucu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         body { background-color: #dbeafe; font-family: 'Segoe UI', sans-serif; }
         .editor-container {
@@ -18,6 +19,18 @@
         .preview-column { background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); font-size: 14px; line-height: 1.6; }
         .form-section { margin-bottom: 2rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1.5rem; }
         .form-section h4 { color: #274877; }
+        #cv-preview {
+          display: block;
+          padding: 20px;
+          margin: 0 auto;
+          text-align: left;
+          background-color: white;
+          width: 100%;
+          color: black;
+          box-sizing: border-box;
+            overflow: visible;
+        }
+
         #cv-preview h3 { color: #2c3e50; text-align: center; }
         #cv-preview .section-title { font-weight: bold; color: #274877; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; }
         /* Chatbot stilleri aynı kaldı */
@@ -137,6 +150,9 @@
         #add-education{
             background-color: #1e3a8a;
         }
+        #download-cv{
+            background-color: #1e3a8a;
+        }
     </style>
 </head>
 <body>
@@ -209,7 +225,7 @@
 
         <!-- SAĞ SÜTUN: CANLI ÖNİZLEME -->
         <div class="preview-column">
-            <div id="cv-preview">
+            <div id="cv-preview" class="cv-preview">
                 <h3 id="preview-fullName">Adınız Soyadınız</h3>
                 <p id="preview-contact" class="text-center small text-muted"></p>
 
@@ -229,7 +245,10 @@
                 <p id="preview-hobbies"></p>
 
             </div>
+
+        <button id="download-cv" class="btn btn-primary mt-2">PDF olarak indir</button>
         </div>
+
         </div> <div id="chat-toggle">
                 <button>💬</button>
             </div>
@@ -246,7 +265,8 @@
             </div>
     </div>
 
-    <script>
+
+    <script >
        // create.html içindeki <script> etiketinin içi
 
         // 1. TEMEL DEĞİŞKENLER VE CV VERİ YAPISI
@@ -614,9 +634,46 @@
         // Sayfa yüklendiğinde ilk render'ı yap
         renderAll();
 
+        window.addEventListener('DOMContentLoaded', function () {
+          const button = document.getElementById("download-cv");
+          const preview = document.getElementById("cv-preview");
+
+          if (!button || !preview) {
+            console.error("Buton veya cv-preview elementi bulunamadı!");
+            return;
+          }
+
+          button.addEventListener("click", function () {
+            console.log("PDF oluşturuluyor...");
+
+            const options = {
+              margin: [0.5, 0.5, 0.5, 0.5],
+              filename: 'cv_ozeti.pdf',
+              image: { type: 'jpeg', quality: 0.98 },
+              html2canvas: { scale: 2, useCORS: true },
+              jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set({
+  margin: 0.5,
+  filename: 'cv_ozeti.pdf',
+  image: { type: 'jpeg', quality: 0.98 },
+  html2canvas: {
+    scale: 2,
+    scrollY: 0,
+    windowHeight: document.getElementById("cv-preview").scrollHeight
+  },
+  jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+}).from(document.getElementById("cv-preview")).save();
+          });
+        });
+
+
+
 
     </script>
 
+<script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
 
 </body>
 </html>

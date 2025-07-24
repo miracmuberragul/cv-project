@@ -13,8 +13,7 @@ urlpatterns = [
     # 2. PDF'i işleyecek API için YENİ bir adres tanımlıyoruz
     path('api/parse-pdf-for-edit/', views.parse_pdf_for_edit, name='parse_pdf_for_edit'),
 
-    # 3. PDF indirme API'si (ileride kullanmak için)
-    path('api/download-cv/', views.download_cv_as_pdf, name='download_cv_as_pdf'),
+
     path('create/generate-summary/', views.generate_summary, name='generate-summary'),
 
 

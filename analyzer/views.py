@@ -39,14 +39,6 @@ def parse_pdf_for_edit(request):
     return JsonResponse({"error": "Sadece POST metodu desteklenir."}, status=405)
 
 
-def download_cv_as_pdf(request):
-    """
-    Bu fonksiyon şimdilik bir placeholder.
-    İleride WeasyPrint gibi bir kütüphane ile HTML'den PDF üretecek.
-    """
-    # Bu kısmı daha sonra dolduracağız.
-    from django.http import HttpResponse
-    return HttpResponse("PDF İndirme özelliği yakında!", content_type="text/plain")
 def home(request):
     return render(request, 'analyzer/homepage.html')
 
