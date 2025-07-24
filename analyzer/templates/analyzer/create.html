@@ -178,9 +178,18 @@
         formElements.experienceEntries.addEventListener('input', (e) => {
             const index = e.target.dataset.index;
             const field = e.target.dataset.field;
+
+            const caretPosition = e.target.selectionStart;//imleç pozisyonunu korur.
+
             if (index !== undefined && field) {
                 cvData.workExperience[index][field] = e.target.value;
                 renderExperience(); // Tüm deneyim bölümünü yeniden çiz
+            }
+            const updatedInputs = formElements.experienceEntries.querySelectorAll(`[data-index="${index}"][data-field="${field}"]`);
+            if (updatedInputs.length > 0) {
+                const newInput = updatedInputs[0];
+                newInput.focus();
+                newInput.setSelectionRange(caretPosition, caretPosition);
             }
         });
 
