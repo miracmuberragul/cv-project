@@ -20,6 +20,123 @@
         .form-section h4 { color: #274877; }
         #cv-preview h3 { color: #2c3e50; text-align: center; }
         #cv-preview .section-title { font-weight: bold; color: #274877; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; }
+        /* Chatbot stilleri aynı kaldı */
+        #chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        #chat-toggle button {
+            background-color: #274877;
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        #chat-toggle button:hover {
+            transform: scale(1.1);
+        }
+
+        #chatbox {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 370px;
+            max-height: 550px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            flex-direction: column; /* Sayfa yüklendiğinde varsayılanı flex olarak tutmak için */
+        }
+
+        .chat-header {
+            background-color: #274877;
+            color: white;
+            padding: 12px 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            font-weight: bold;
+        }
+
+        #chat-messages {
+            padding: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+            height: 350px;
+        }
+
+        .chat-footer {
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        #chat-input {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 8px;
+            resize: none;
+        }
+
+        #chat-send-button {
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #dbeafe;
+            color: #1e3a8a;
+            padding: 10px 14px;
+            border-radius: 15px 15px 0 15px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background: #f1f0f0;
+            color: #333;
+            padding: 10px 14px;
+            border-radius: 15px 15px 15px 0;
+            align-self: flex-start;
+        }
+
+        .loading-message, .error-message {
+            background: #f1f0f0;
+            padding: 10px 14px;
+            border-radius: 15px 15px 15px 0;
+            align-self: flex-start;
+            font-style: italic;
+            color: #666;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        #generate-summary{
+            background-color: #1e3a8a;
+        }
+        #add-experience{
+            background-color: #1e3a8a;
+        }
+        #add-education{
+            background-color: #1e3a8a;
+        }
     </style>
 </head>
 <body>
@@ -30,6 +147,12 @@
             <h3>CV'ni Düzenle</h3>
             <div class="my-3">
                 <label for="import-pdf" class="form-label"><strong>Veya PDF'ten İçeri Aktar:</strong></label>
+                    <div id="pdf-loading" style="display: none; color: gray; font-style: italic;">
+                      PDF içeri aktarılıyor...
+                    </div>
+                    <div id="pdf-loaded" style="display: none; color: gray; font-style: italic;">
+                          PDF içeri aktarıldı.
+                    </div>
                 <input type="file" id="import-pdf" class="form-control" accept=".pdf">
             </div>
             <hr>
@@ -47,6 +170,13 @@
             <div id="summary-form" class="form-section">
                 <h4>Özet</h4>
                 <textarea id="summary" class="form-control" rows="5" placeholder="Profesyonel özetiniz..."></textarea>
+                    <div id="summary-loading" style="display: none; color: gray; font-style: italic;">
+                      AI özeti hazırlanıyor...
+                    </div>
+                    <div id="summary-loaded" style="display: none; color: gray; font-style: italic;">
+                        AI özeti hazırlandı.
+                    </div>
+                 <button type="button" id="generate-summary" class="btn btn-primary mt-2" >✨ AI ile Oluştur</button>
             </div>
 
             <!-- İş Deneyimi Formu -->
@@ -55,10 +185,25 @@
                 <div id="experience-entries"></div>
                 <button id="add-experience" class="btn btn-secondary btn-sm mt-2">Deneyim Ekle</button>
             </div>
+            <!-- Eğitim Formu -->
+            <div id="education-form" class="form-section">
+                <h4>Eğitim</h4>
+                <div id="education-entries"></div>
+                <button id="add-education" class="btn btn-secondary btn-sm mt-2">Eğitim Ekle</button>
+            </div>
 
+            <!-- Yetenekler -->
+            <div id="skills-form" class="form-section">
+                <h4>Yetenekler</h4>
+                <textarea id="skills" class="form-control" rows="3" placeholder="Örn: Python, Java, SQL..."></textarea>
+            </div>
 
+            <!-- Hobiler -->
+            <div id="hobbies-form" class="form-section">
+                <h4>Hobiler</h4>
+                <textarea id="hobbies" class="form-control" rows="3" placeholder="Kitap okuma, yüzme, müzik..."></textarea>
+            </div>
 
-            <!-- Diğer bölümleri (Eğitim, Yetenekler) de benzer şekilde ekleyebilirsiniz -->
 
         </div>
 
@@ -73,8 +218,32 @@
 
                 <p class="section-title">İş Deneyimi</p>
                 <div id="preview-experience"></div>
+
+                <p class="section-title">Eğitim</p>
+                <div id="preview-education"></div>
+
+                <p class="section-title">Yetenekler</p>
+                <p id="preview-skills"></p>
+
+                <p class="section-title">Hobiler</p>
+                <p id="preview-hobbies"></p>
+
             </div>
         </div>
+        </div> <div id="chat-toggle">
+                <button>💬</button>
+            </div>
+
+            <div id="chatbox">
+                <div class="chat-header">CV Chatbot Asistant</div>
+                <div id="chat-messages"></div>
+                <div class="chat-footer">
+                    <form id="chat-form">
+                        <textarea id="chat-input" rows="2" placeholder="Ask a question..." required></textarea>
+                        <button type="submit" id="chat-send-button" class="btn btn-primary btn-sm">Send</button>
+                    </form>
+                </div>
+            </div>
     </div>
 
     <script>
@@ -86,7 +255,8 @@
             summary: '',
             workExperience: [],
             education: [],
-            skills: []
+            skills: [],
+            hobbies: [],
         };
 
         const formElements = {
@@ -114,6 +284,9 @@
             renderPersonalInfo();
             renderSummary();
             renderExperience();
+            renderEducation();
+            renderSkills();
+            renderHobbies();
         }
 
         function renderPersonalInfo() {
@@ -159,6 +332,37 @@
                 previewElements.experience.appendChild(previewDiv);
             });
         }
+        function renderEducation() {
+            const container = document.getElementById('education-entries');
+            const preview = document.getElementById('preview-education');
+            container.innerHTML = '';
+            preview.innerHTML = '';
+
+            cvData.education.forEach((edu, index) => {
+                const div = document.createElement('div');
+                div.className = 'card card-body mb-2';
+                div.innerHTML = `
+                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="degree" data-type="education" value="${edu.degree}" placeholder="Derece">
+                    <input type="text" class="form-control mb-1" data-index="${index}" data-field="institution" data-type="education" value="${edu.institution}" placeholder="Okul">
+                `;
+                container.appendChild(div);
+
+                const prev = document.createElement('p');
+                prev.innerHTML = `<strong>${edu.degree || ''}</strong> - ${edu.institution || ''}`;
+                preview.appendChild(prev);
+            });
+        }
+
+        function renderSkills() {
+            document.getElementById('skills').value = cvData.skills.join(', ');
+            document.getElementById('preview-skills').textContent = cvData.skills.join(', ');
+        }
+
+        function renderHobbies() {
+            document.getElementById('hobbies').value = cvData.hobbies.join(', ');
+            document.getElementById('preview-hobbies').textContent = cvData.hobbies.join(', ');
+        }
+
 
 
         // 3. EVENT LISTENERS (Kullanıcı etkileşimlerini yakalar)
@@ -197,16 +401,94 @@
             cvData.workExperience.push({ jobTitle: '', company: '', description: '' });
             renderExperience();
         });
+        document.getElementById('skills').addEventListener('input', (e) => {
+            cvData.skills = e.target.value.split(',').map(s => s.trim());
+            renderSkills();
+        });
+
+        document.getElementById('hobbies').addEventListener('input', (e) => {
+            cvData.hobbies = e.target.value.split(',').map(h => h.trim());
+            renderHobbies();
+        });
+
+        document.getElementById('education-entries').addEventListener('input', (e) => {
+            const index = e.target.dataset.index;
+            const field = e.target.dataset.field;
+            const type = e.target.dataset.type;
+
+            if (type === 'education' && index !== undefined && field) {
+                cvData.education[index][field] = e.target.value;
+                renderEducation();
+            }
+        });
+
+        document.getElementById('add-education').addEventListener('click', () => {
+            cvData.education.push({ degree: '', institution: '' });
+            renderEducation();
+        });
+        document.getElementById("generate-summary").addEventListener("click", function () {
+            document.getElementById("summary-loading").style.display = "block";
+            document.getElementById("summary-loaded").style.display = "none";
+            // `cvData` objesinden güncel verileri al
+            const currentName = cvData.personalInfo.fullName;
+            // Yetenekleri virgülle ayrılmış bir stringe çevir
+            const currentSkills = cvData.skills.join(', ');
+
+            // Eğitim ve deneyim bilgilerini daha anlamlı bir stringe dönüştürün
+            // Örneğin: "Boğaziçi Üniversitesi - Bilgisayar Mühendisliği; X Şirketi - Yazılım Mühendisi;"
+            const currentEducation = cvData.education.map(edu => `${edu.degree} - ${edu.institution}`).join('; ');
+            const currentExperience = cvData.workExperience.map(exp => `${exp.jobTitle} at ${exp.company}`).join('; ');
+
+
+            fetch('generate-summary/', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: JSON.stringify({
+                name: currentName,
+                skills: currentSkills,
+                education: currentEducation,
+                experience: currentExperience
+              })
+            })
+            .then(response => {
+                // Hata durumlarını daha iyi yakalamak için
+                if (!response.ok) {
+                    // Sunucu tarafından dönen hatayı JSON olarak almayı dene
+                    return response.json().then(err => { throw new Error(err.error || 'Bilinmeyen sunucu hatası'); });
+                }
+                return response.json();
+            })
+            .then(data => {
+              document.getElementById("summary").value = data.summary;
+              // CV data'yı da güncelle ki önizleme de değişsin
+              cvData.summary = data.summary;
+              renderSummary(); // Summary alanını yeniden render et
+              document.getElementById("summary-loading").style.display = "none";
+              document.getElementById("summary-loaded").style.display = "block";
+
+            })
+            .catch(error => {
+              console.error('AI Özet Hatası:', error);
+              alert(`AI özeti alınamadı: ${error.message || error}. Lütfen tüm alanları doldurduğunuzdan emin olun.`);
+              document.getElementById("summary-loading").style.display = "none";
+            });
+
+        });
+
 
 
         // 4. PDF İÇERİ AKTARMA
 
         const importPdfInput = document.getElementById('import-pdf');
         importPdfInput.addEventListener('change', async (e) => {
+            document.getElementById("pdf-loading").style.display = "block";
+            document.getElementById("pdf-loaded").style.display = "none";
             const file = e.target.files[0];
             if (!file) return;
 
-            alert('PDF ayrıştırılıyor, bu işlem biraz sürebilir...');
             const formData = new FormData();
             formData.append('pdf_file', file);
 
@@ -222,17 +504,119 @@
                 }
 
                 const data = await response.json();
-                cvData = data; // Gelen JSON verisi ile ana veri yapımızı güncelle
+                cvData = {
+                    personalInfo: data.personalInfo || { fullName: '', email: '', phone: '', address: '' },
+                    summary: data.summary || '',
+                    workExperience: data.workExperience || [],
+                    education: data.education || [],
+                    skills: data.skills || [],
+                    hobbies: data.hobbies || []
+                };
                 renderAll(); // Tüm arayüzü yeni veri ile yeniden çiz
-                alert('PDF başarıyla içeri aktarıldı!');
+                document.getElementById("pdf-loading").style.display = "none";
+                document.getElementById("pdf-loaded").style.display = "block";
 
             } catch (error) {
+                document.getElementById("pdf-loading").style.display = "none";
                 alert(`Hata: ${error.message}`);
             }
         });
 
+        // CHATBOT KISMI
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function toggleChat() {
+            const box = document.getElementById("chatbox");
+            box.style.display = box.style.display === "none" || box.style.display === "" ? "flex" : "none";
+        }
+
+        async function sendChat() {
+            const input = document.getElementById("chat-input");
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatMessages = document.getElementById("chat-messages");
+            appendMessage(message, 'user');
+            input.value = "";
+
+            const loadingElement = appendMessage('...', 'loading');
+
+            try {
+                const response = await fetch("/api/chatbot/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ question: message })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json(); // Hata JSON'ını yakalamaya çalış
+                    throw new Error(`Sunucu hatası: ${response.status} - ${errorData.error || response.statusText}`);
+                }
+
+                const data = await response.json();
+                loadingElement.remove();
+                appendMessage(data.answer || "Anlaşılır bir cevap alınamadı.", 'bot');
+            } catch (error) {
+                console.error("Chat Hatası:", error);
+                loadingElement.remove();
+                appendMessage(`Üzgünüm, bir hata oluştu: ${error.message}. Lütfen daha sonra tekrar deneyin.`, 'error');
+            }
+        }
+
+        function appendMessage(text, type) {
+            const chatMessages = document.getElementById("chat-messages");
+            const messageWrapper = document.createElement("div");
+            messageWrapper.classList.add('chat-message');
+
+            const messageBubble = document.createElement("div");
+            messageBubble.textContent = text;
+
+            if (type === 'user') {
+                messageBubble.classList.add('user-message');
+            } else if (type === 'bot') {
+                messageBubble.classList.add('bot-message');
+            } else if (type === 'loading') {
+                messageBubble.classList.add('loading-message');
+            } else if (type === 'error') {
+                messageBubble.classList.add('error-message');
+            }
+
+            messageWrapper.appendChild(messageBubble);
+            chatMessages.appendChild(messageWrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            return messageWrapper;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('chat-toggle').addEventListener('click', toggleChat);
+            document.getElementById('chat-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                sendChat();
+            });
+        });
+
         // Sayfa yüklendiğinde ilk render'ı yap
         renderAll();
+
+
     </script>
+
+
 </body>
 </html>

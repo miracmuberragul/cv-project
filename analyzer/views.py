@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .models import Resume
 import json
-from .gemini import analyze_cv_with_gemini, chatbot_answer_with_gemini, parse_analysis_text, extract_cv_data_with_gemini
+from .gemini import analyze_cv_with_gemini, chatbot_answer_with_gemini, parse_analysis_text, extract_cv_data_with_gemini, generate_summary_text
 import difflib
 
 # views.py (eklemeler)
@@ -168,3 +168,34 @@ def compare_cv_versions(old_cv: str, new_cv: str) -> list[str]:
     ]
 
     return meaningful_additions
+
+
+@csrf_exempt
+def generate_summary(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            name = data.get('name', '').strip()
+            skills = data.get('skills', '').strip()
+            education = data.get('education', '').strip()
+            experience = data.get('experience', '').strip()
+
+            if not any([name, skills, education, experience]):
+                return JsonResponse({'error': 'Lütfen tüm alanları doldurun.'}, status=400)
+
+            # Gemini ile AI özeti oluştur
+            prompt = f"""
+            Aşağıdaki bilgileri kullanarak profesyonel bir kariyer özeti (3-4 cümlelik) oluştur:
+            İsim: {name}
+            Yetenekler: {skills}
+            Eğitim: {education}
+            Deneyim: {experience}
+            """
+            summary = generate_summary_text(prompt)
+
+            return JsonResponse({'summary': summary})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'error': 'Sadece POST isteklerine izin verilir.'}, status=405)

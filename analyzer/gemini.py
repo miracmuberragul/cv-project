@@ -336,3 +336,38 @@ def extract_cv_data_with_gemini(cv_text: str) -> dict:
     except Exception as e:
         print(f"HATA: Gemini API çağrısı sırasında bir hata oluştu: {e}")
         return {"error": f"AI servisine bağlanırken bir sorun oluştu: {str(e)}"}
+
+
+def generate_summary_text(name: str = "", skills: str = "", education: str = "", experience: str = "") -> str:
+    """
+    Kullanıcının adı, yetenekleri, eğitimi ve deneyimine göre profesyonel bir özgeçmiş özeti üretir.
+    """
+    prompt = f"""
+    
+    Aşağıdaki bilgilerle profesyonel bir özgeçmiş özeti (CV Summary) yaz Yalnızca özet metni üret. Giriş, kapanış veya açıklama yazma.:
+
+    - İsim: {name}
+    - Yetenekler: {skills}
+    - Eğitim: {education}
+    - Deneyim: {experience}
+
+    ➤ 3-4 satırlık kısa, etkili ve profesyonel bir özet oluştur.
+    ➤ İngilizce yaz.
+    ➤ Özet, özgün ve akıcı olsun; tekrar veya ezber cümlelerden kaçın.
+    ➤ Kişisel yetkinlikleri ve güçlü yönleri vurgula.
+    >
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        # Gemini bazen yanıtı farklı bir formatta döndürebilir veya boş olabilir.
+        # response.text'in varlığını ve içeriğini kontrol etmek önemlidir.
+        if hasattr(response, 'text') and response.text:
+            return response.text.strip()
+        else:
+            print(f"DEBUG: Gemini'dan boş veya metin içermeyen bir yanıt geldi. Feedback: {response.prompt_feedback}")
+            return "Gemini'dan geçerli bir metin yanıtı alınamadı." # Anlaşılır bir mesaj döndürün
+    except Exception as e:
+        print(f"DEBUG: Gemini API çağrısı sırasında hata: {e}") # Sunucu konsoluna yazdır
+        # API anahtarının geçersiz olması veya kota aşımı gibi durumlar burada yakalanır.
+        return f"Gemini özgeçmiş özeti oluşturma hatası: {str(e)}"
