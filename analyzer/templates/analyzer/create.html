@@ -275,6 +275,22 @@
             background-color: #1e3a8a;
             color: white;
         }
+        .language-selector {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .lang-btn {
+            margin-right: 0.5rem;
+        }
+
+        .lang-btn.active {
+            background-color: #274877;
+            color: white;
+            border-color: #274877;
+        }
+
     </style>
 </head>
 <body>
@@ -351,13 +367,23 @@
             <h5>Select Template</h5>
             <button class="btn btn-outline-secondary template-btn active" data-template="classic">Classic</button>
             <button class="btn btn-outline-secondary template-btn" data-template="modern">Modern</button>
-            <!-- YENİ: Canlı Şablon Butonu -->
             <button class="btn btn-outline-secondary template-btn" data-template="vibrant">Live</button>
+        </div>
+
+        <div class="language-selector mt-3">
+            <h5>Select Language</h5>
+            <button id="tr-button" class="btn btn-outline-secondary lang-btn " data-lang="tr">Türkçe</button>
+            <button id="en-button"  class="btn btn-outline-secondary lang-btn active" data-lang="en">English</button>
+            <button id="de-button"  class="btn btn-outline-secondary lang-btn" data-lang="de">Deutsch</button>
+
+            <div id="translating" style="display: none; color: gray;">Translating CV...</div>
+            <div id="translated" style="display: none; color: green;">CV translated to selected language.</div>
         </div>
 
         <div id="cv-preview">
             <!-- Bu alan JavaScript tarafından dinamik olarak doldurulacak -->
         </div>
+
 
         <button id="download-cv" class="btn btn-primary mt-3 w-100">Download as PDF</button>
     </div>
@@ -384,6 +410,7 @@
 <script>
     // 1. TEMEL DEĞİŞKENLER VE CV VERİ YAPISI
     let currentTemplate = 'classic';
+    let currentLanguage = 'en';
 
     // YENİ: cvData'ya sertifikalar ve diller eklendi
     let cvData = {
@@ -396,6 +423,29 @@
         skills: [],
         hobbies: [],
     };
+    let allCvData = {
+        'tr': {
+            personalInfo: {},
+            workExperience: [],
+            education: [],
+            certificates: [],
+            languages: [],
+            skills: [],
+            hobbies: []
+        }, // Boş Türkçe data
+        'en': JSON.parse(JSON.stringify(cvData)), // Varsayılan boş cvData yapısını klonla, başlangıçta bu aktif olacak
+        'de': {
+            personalInfo: {},
+            workExperience: [],
+            education: [],
+            certificates: [],
+            languages: [],
+            skills: [],
+            hobbies: []
+        }// Boş Almanca data
+    };
+
+    cvData = allCvData[currentLanguage];
 
     const formElements = {
         fullName: document.getElementById('fullName'),
@@ -661,6 +711,63 @@
             e.target.classList.add('active');
             currentTemplate = e.target.dataset.template;
             renderPreview();
+        });
+    });
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+
+        btn.addEventListener('click', async (e) => {
+            const newLanguage = e.target.dataset.lang;
+            document.getElementById("translating").style.display = "block";
+
+
+            // Eğer zaten seçili dil ise veya bir çeviri işlemi devam ediyorsa bir şey yapma
+            if (newLanguage === currentLanguage) return;
+
+            // Butonların aktifliğini güncelle
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+
+
+            try {
+                // Backend'e çeviri isteği gönder
+                const response = await fetch('translate-cv/', { // urls.py'deki path ile eşleşmeli
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        cv_data: cvData, // Mevcut CV verilerini gönder
+                        target_language: newLanguage
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Çeviri sırasında bir hata oluştu.');
+                }
+
+                const translatedData = await response.json();
+
+                // Çevrilmiş verileri mevcut cvData objesine aktar
+                // Eğer allCvData kullanıyorsanız:
+                allCvData[newLanguage] = translatedData;
+                currentLanguage = newLanguage;
+                cvData = allCvData[currentLanguage]; // Aktif cvData'yı güncelle
+
+                updateForms(); // Formları çevrilmiş verilerle güncelle
+                renderPreview(); // Önizlemeyi çevrilmiş verilerle güncelle
+
+                document.getElementById("translating").style.display = "none";
+                document.getElementById("translated").style.display = "block";
+
+            } catch (error) {
+                console.error('CV çeviri hatası:', error);
+                alert(`Çeviri hatası: ${error.message}`);
+                // Hata durumunda, butonun aktifliğini eski dile geri getirebilirsiniz
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.lang-btn[data-lang="${currentLanguage}"]`).classList.add('active');
+            }
         });
     });
 

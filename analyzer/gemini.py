@@ -1,8 +1,9 @@
-import os
-from dotenv import load_dotenv
-import google.generativeai as genai
-import re
 import json
+import os
+import re
+
+import google.generativeai as genai
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -41,66 +42,6 @@ def analyze_cv_with_gemini(cv_text: str) -> str:
         return response.text.strip()
     except Exception as e:
         # Return the error as a string for the view to handle
-        return f"Gemini hatası: {str(e)}"
-
-
-def analyze_cv_with_gemini(cv_text: str) -> str:
-    """
-    Bu fonksiyon değişmedi. Gemini'den yapılandırılmış bir metin yanıtı istemeye devam ediyor.
-    """
-    prompt = f"""
-        Aşağıdaki CV metnini analiz et. Cevabını aşağıdaki formatta, başlıkları tam olarak yazarak ver. 
-        Her bir maddeyi tire (-) ile başlat.
-        Çok uzun olmasın açık, anlaşılır ve akıcı olsun.
-
-        İyi Yönler:
-        - [Madde 1]
-        - [Madde 2]
-
-        Eksikler:
-        - [Madde 1]
-        - [Madde 2]
-
-        Genel Değerlendirme:
-        [Tek paragraflık genel yorum]
-
-        CV:
-        \"\"\"
-        {cv_text}
-        \"\"\"
-        """
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        return f"Gemini hatası: {str(e)}"
-
-
-def analyze_cv_with_gemini(cv_text: str) -> str:
-    prompt = f"""
-        Aşağıdaki CV metnini analiz et. Cevabını aşağıdaki formatta, başlıkları tam olarak yazarak ver. 
-        Her bir maddeyi tire (-) ile başlat.
-
-        İyi Yönler:
-        - [Madde 1]
-        - [Madde 2]
-
-        Eksikler:
-        - [Madde 1]
-        - [Madde 2]
-
-        Genel Değerlendirme:
-        [Tek paragraflık genel yorum]
-
-        CV:
-        \"\"\"
-        {cv_text}
-        \"\"\"
-        """
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
         return f"Gemini hatası: {str(e)}"
 
 
@@ -380,11 +321,68 @@ def generate_summary_text(name: str = "", skills: str = "", education: str = "",
             return response.text.strip()
         else:
             print(f"DEBUG: Gemini'dan boş veya metin içermeyen bir yanıt geldi. Feedback: {response.prompt_feedback}")
-            return "Gemini'dan geçerli bir metin yanıtı alınamadı." # Anlaşılır bir mesaj döndürün
+            return "Gemini'dan geçerli bir metin yanıtı alınamadı."  # Anlaşılır bir mesaj döndürün
     except Exception as e:
-        print(f"DEBUG: Gemini API çağrısı sırasında hata: {e}") # Sunucu konsoluna yazdır
+        print(f"DEBUG: Gemini API çağrısı sırasında hata: {e}")  # Sunucu konsoluna yazdır
         # API anahtarının geçersiz olması veya kota aşımı gibi durumlar burada yakalanır.
         return f"Gemini özgeçmiş özeti oluşturma hatası: {str(e)}"
 
 
+def translate_cv_data_with_gemini(cv_data: dict, target_language: str) -> dict:
+    """
+    Verilen yapılandırılmış CV verilerini (dictionary) Gemini kullanarak hedef dile çevirir.
+    Dönen çevrilmiş verilerin JSON formatında olması beklenir.
+    """
+    if not os.environ.get("GEMINI_API_KEY"):
+        return {"error": "Gemini API anahtarı yapılandırılmamış."}
 
+    # Hedef dilin tam adını belirleyelim
+    lang_map = {
+        "en": "İngilizce",
+        "tr": "Türkçe",
+        "de": "Almanca"
+        # Desteklemek istediğiniz diğer dilleri buraya ekleyin
+    }
+    lang_name = lang_map.get(target_language, "İngilizce") # Varsayılan olarak İngilizce
+
+    # Çevrilecek CV verisini JSON string'ine dönüştür
+    cv_json_string = json.dumps(cv_data, ensure_ascii=False, indent=2)
+
+    prompt = f"""
+    Aşağıdaki CV verilerini (JSON formatında) baştan sona "{lang_name}" diline çevir.
+    Tüm metinsel alanları (personalInfo içindeki fullName, summary, workExperience içindeki jobTitle, company, description; education içindeki degree, institution; certificates içindeki name, issuer; skills listesi elemanları, languages içindeki name ve level alanları, hobbies listesi elemanları) çevir.
+    Çevrilen verileri aynı JSON yapısında geri döndür.
+    JSON nesnesinin dışında KESİNLİKLE hiçbir açıklama veya ek metin ekleme. Sadece saf JSON döndür.
+
+    Çevrilecek CV Verisi:
+    ---
+    {cv_json_string}
+    ---
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        cleaned_text = response.text.strip().replace("```json", "").replace("```", "").strip()
+
+        # JSON başlangıcı ve sonunu bulma, `extract_cv_data_with_gemini`'deki gibi daha sağlam bir yaklaşım
+        json_start = cleaned_text.find('{')
+        json_end = cleaned_text.rfind('}')
+
+        if json_start != -1 and json_end != -1 and json_end > json_start:
+            cleaned_text = cleaned_text[json_start : json_end + 1]
+        else:
+            print(f"UYARI: translate_cv_data_with_gemini - JSON başlangıç/bitiş karakterleri bulunamadı veya hatalı. Ham metin:\n{cleaned_text}")
+            # Bu durumda, sadece temizlenmiş ham metni denemek zorunda kalabiliriz,
+            # ancak bu JSONDecodeError'a yol açabilir.
+            # Hata ayıklama için bu noktayı dikkatle inceleyin.
+
+
+        translated_cv_data = json.loads(cleaned_text)
+        return translated_cv_data
+
+    except json.JSONDecodeError as e:
+        print(f"HATA: translate_cv_data_with_gemini geçerli bir JSON döndürmedi. Hata: {e}. Dönen metin:\n{cleaned_text}")
+        return {"error": f"AI'dan gelen çevrilmiş veri ayrıştırılamadı. Hata: {e}"}
+    except Exception as e:
+        print(f"HATA: translate_cv_data_with_gemini API çağrısı sırasında bir hata oluştu: {e}")
+        return {"error": f"AI servisine bağlanırken bir sorun oluştu: {str(e)}"}

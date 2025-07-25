@@ -2,7 +2,9 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .models import Resume
 import json
-from .gemini import analyze_cv_with_gemini, chatbot_answer_with_gemini, parse_analysis_text, extract_cv_data_with_gemini, generate_summary_text
+from .gemini import (analyze_cv_with_gemini, chatbot_answer_with_gemini,
+                     parse_analysis_text, extract_cv_data_with_gemini,
+                     generate_summary_text, translate_cv_data_with_gemini)
 import difflib
 
 # views.py (eklemeler)
@@ -194,4 +196,25 @@ def generate_summary(request):
 
     return JsonResponse({'error': 'Sadece POST isteklerine izin verilir.'}, status=405)
 
+def translate_cv(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            cv_data = data.get('cv_data')
+            target_language = data.get('target_language')
 
+            if not cv_data or not target_language:
+                return JsonResponse({"error": "Eksik veri: 'cv_data' ve 'target_language' zorunludur."}, status=400)
+
+            translated_data = translate_cv_data_with_gemini(cv_data, target_language)
+
+            if "error" in translated_data:
+                return JsonResponse({"error": translated_data["error"]}, status=500)
+
+            return JsonResponse(translated_data)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Geçersiz JSON formatı."}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": f"Bir hata oluştu: {str(e)}"}, status=500)
+    return JsonResponse({"error": "Yalnızca POST istekleri desteklenir."}, status=405)
