@@ -272,7 +272,8 @@
         }
 
         #generate-summary, #add-experience, #add-education, #add-certificate, #add-language, #download-cv {
-            background-color: #1e3a8a;
+            background-color: #274877;
+            border-color: #274877;
             color: white;
         }
         .language-selector {
@@ -383,6 +384,8 @@
         <div id="cv-preview">
             <!-- Bu alan JavaScript tarafından dinamik olarak doldurulacak -->
         </div>
+        <button id="save-cv-btn" class="btn btn-success mt-3" >Save</button>
+
 
 
         <button id="download-cv" class="btn btn-primary mt-3 w-100">Download as PDF</button>
@@ -933,6 +936,54 @@
             sendChat();
         });
     });
+    document.getElementById('save-cv-btn').addEventListener('click', async () => {
+    // 1. CV'nin HTML içeriğini al
+    const cvHtmlContent = document.getElementById('cv-preview').innerHTML;
+
+    if (!cvHtmlContent.trim()) {
+        alert('Kaydedilecek CV içeriği boş.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/save-cv/', { // urls.py'daki path ile eşleşmeli
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // CSRF token'ı eklediğinizden emin olun
+            },
+            body: JSON.stringify({ html_content: cvHtmlContent })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(data.message); // "CV başarıyla kaydedildi!"
+        } else {
+            alert('Kaydetme hatası: ' + data.message);
+            console.error('Kaydetme hatası:', data.message);
+        }
+    } catch (error) {
+        alert('Ağ hatası veya sunucuya ulaşılamadı.');
+        console.error('Fetch hatası:', error);
+    }
+});
+
+// getCookie fonksiyonunu da eklediğinizden emin olun, daha önceki cevabımda vermiştim.
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
     // Sayfa yüklendiğinde ilk render'ı yap
     updateForms();

@@ -15,6 +15,12 @@ urlpatterns = [
 
     path('create/generate-summary/', views.generate_summary, name='generate-summary'),
     path('create/translate-cv/', views.translate_cv, name='translate_cv'),
+    path("save-cv/", views.save_cv, name="save_cv"),
+
+
+
+
+
 
 
 

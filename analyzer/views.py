@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import Resume
+from .models import Resume, CV
 import json
 from .gemini import (analyze_cv_with_gemini, chatbot_answer_with_gemini,
                      parse_analysis_text, extract_cv_data_with_gemini,
@@ -218,3 +218,20 @@ def translate_cv(request):
         except Exception as e:
             return JsonResponse({"error": f"Bir hata oluştu: {str(e)}"}, status=500)
     return JsonResponse({"error": "Yalnızca POST istekleri desteklenir."}, status=405)
+
+
+@csrf_exempt
+def save_cv(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            html_content = data.get("html_content")
+
+            if not html_content:
+                return JsonResponse({'message': 'Boş içerik kaydedilemez.'}, status=400)
+
+            CV.objects.create(html_content=html_content)
+            return JsonResponse({'message': 'CV başarıyla kaydedildi!'})
+        except Exception as e:
+            return JsonResponse({'message': f'Hata oluştu: {str(e)}'}, status=500)
+
